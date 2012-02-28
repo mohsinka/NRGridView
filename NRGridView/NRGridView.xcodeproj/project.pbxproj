@@ -154,7 +154,7 @@
 		17BF812B14E1B3FA00F109BE /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0430;
 				ORGANIZATIONNAME = PixiApps;
 			};
 			buildConfigurationList = 17BF812E14E1B3FA00F109BE /* Build configuration list for PBXProject "NRGridView" */;

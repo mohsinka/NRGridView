@@ -163,7 +163,8 @@
     if(_imageView == nil)
     {
         _imageView = [[UIImageView alloc] initWithFrame:CGRectZero];
-        [_imageView setContentMode:UIViewContentModeCenter];
+        [_imageView setContentMode:UIViewContentModeScaleAspectFit];
+        [_imageView setClipsToBounds:YES];
         
         [[self contentView] addSubview:_imageView];
     }
