@@ -25,7 +25,8 @@ If you got any suggestions, or if you need more UITableView-like methods, do not
 
 ####Fixed
 - scrollRectToSection:animated:scrollPosition: now scrolls to the end of the section if scrollPosition is NRGridViewScrollPositionAtRight/NRGridViewScrollPositionAtBottom
-
+- Warning message
+- NRGridViewCell's imageView default settings (now clips to bounds and nicer content mode)
 
 
 
