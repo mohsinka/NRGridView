@@ -343,7 +343,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 {
     if(_layoutStyle != layoutStyle)
     {
-        NSAssert(layoutStyle == (NRGridViewLayoutStyleHorizontal||NRGridViewLayoutStyleVertical),
+        NSAssert((layoutStyle == NRGridViewLayoutStyleHorizontal || layoutStyle == NRGridViewLayoutStyleVertical),
                  @"%@: incorrect layout style", 
                  NSStringFromClass([self class]));
         
