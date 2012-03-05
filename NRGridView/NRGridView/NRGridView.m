@@ -336,10 +336,11 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 - (void)setCellSize:(CGSize)cellSize
 {
-    if(CGSizeEqualToSize(_cellSize, cellSize))
+    if(CGSizeEqualToSize(_cellSize, cellSize) == NO)
     {
         [self willChangeValueForKey:@"cellSize"];
         _cellSize = cellSize;
+        
         [self __reloadContentSize];
         [self setNeedsLayout];
         [self didChangeValueForKey:@"cellSize"];
@@ -1140,8 +1141,8 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 - (void)layoutSubviews
 {
     [super layoutSubviews];
-
-    if(CGRectIsEmpty([self frame]))
+    
+    if(CGRectIsEmpty([self bounds]))
         return;
     
     [_highlightedCell setHighlighted:NO animated:NO];
