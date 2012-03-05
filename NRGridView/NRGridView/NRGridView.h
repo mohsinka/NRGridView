@@ -61,6 +61,16 @@ typedef enum{
 } NRGridViewScrollPosition;
 
 
+/** Possible options that can be combined together to determine when a pressured cell must but un-highlighted. 
+ * (cf NRGridViewDelegate if you wish to support the long press gesture on any cell)
+ */
+typedef enum{
+    NRGridViewLongPressUnhighlightUponPressGestureEnds = 0x01,              // Un-highlights the cell when the user's finger lefts the screen
+    NRGridViewLongPressUnhighlightUponScroll           = 0x02,              // Un-highlights the cell when the user scrolls the gridView.
+    NRGridViewLongPressUnhighlightUponAnotherTouch     = 0x04               // Un-highlights the cell when the user touches the same or another cell
+} NRGridViewLongPressUnhighlightOptions;
+
+
 static CGSize const kNRGridViewDefaultCellSize = {50, 70};
 
 @interface NRGridView : UIScrollView
@@ -69,7 +79,7 @@ static CGSize const kNRGridViewDefaultCellSize = {50, 70};
     NSMutableArray  *_sectionLayouts;
     NSMutableSet    *_reusableCellsSet;
     NSMutableSet    *_visibleCellsSet;
-    NRGridViewCell  *_highlightedCell;
+    NRGridViewCell  *_highlightedCell, *_longPressuredCell;
 }
 
 - (id)initWithLayoutStyle:(NRGridViewLayoutStyle)layoutStyle;
@@ -120,6 +130,12 @@ static CGSize const kNRGridViewDefaultCellSize = {50, 70};
                      scrollPosition:(NRGridViewScrollPosition)scrollPosition;
 
 
+/** Long Pressure options (cf NRGridViewDelegate if you wish to support the long press gesture on any cell) 
+ * Default value is (NRGridViewLongPressUnhighlightUponScroll|NRGridViewLongPressUnhighlightUponAnotherTouch)
+ */
+@property (nonatomic, assign) NRGridViewLongPressUnhighlightOptions longPressOptions; 
 
+// You can either manually deselect the pressured cell like we do in our sample app.
+- (void)unhighlightPressuredCellAnimated:(BOOL)animated;
 
 @end

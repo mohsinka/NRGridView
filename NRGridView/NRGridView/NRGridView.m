@@ -237,18 +237,23 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 
 @property (nonatomic, retain) UITapGestureRecognizer *tapGestureRecognizer;
+@property (nonatomic, retain) UILongPressGestureRecognizer *longPressGestureRecognizer;
+
 - (void)__handleTapGestureRecognition:(UIGestureRecognizer*)tapGestureRecognizer;
+- (void)__handleLongPressGestureRecognizer:(UIGestureRecognizer*)tapGestureRecognizer;
 
 @end
 
 @implementation NRGridView
 @synthesize tapGestureRecognizer = _tapGestureRecognizer;
+@synthesize longPressGestureRecognizer = _longPressGestureRecognizer;
 
 @synthesize layoutStyle = _layoutStyle;
 @synthesize dataSource = _dataSource;
 @synthesize delegate;
 @synthesize cellSize = _cellSize;
 @synthesize selectedCellIndexPath = _selectedCellIndexPath;
+@synthesize longPressOptions = _longPressOptions;
 
 @dynamic visibleCells, indexPathsForVisibleCells;
 
@@ -259,6 +264,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     [self setBackgroundColor:[UIColor whiteColor]];
     [self setLayoutStyle:NRGridViewLayoutStyleVertical];
     [self setCellSize:kNRGridViewDefaultCellSize];
+    [self setLongPressOptions:(NRGridViewLongPressUnhighlightUponScroll|NRGridViewLongPressUnhighlightUponAnotherTouch)];
     
     // Tap gesture recognizer
     _tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self 
@@ -357,6 +363,31 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
         if([self dataSource])
             [self reloadData];
     }
+}
+
+- (void)setDelegate:(id<NRGridViewDelegate>)aDelegate
+{
+    if(delegate != aDelegate)
+    {
+        [self willChangeValueForKey:@"delegate"];
+        [self removeGestureRecognizer:_longPressGestureRecognizer];
+        [_longPressGestureRecognizer release], _longPressGestureRecognizer=nil;
+        
+        delegate = aDelegate;
+        
+        if([aDelegate respondsToSelector:@selector(gridView:didLongPressCellAtIndexPath:)])
+        {
+            _longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(__handleLongPressGestureRecognizer:)];
+            [_longPressGestureRecognizer setDelegate:self];
+            [_longPressGestureRecognizer setNumberOfTapsRequired:0];
+            [_longPressGestureRecognizer setNumberOfTouchesRequired:1];
+            
+            [self addGestureRecognizer:_longPressGestureRecognizer];
+        }
+        [self didChangeValueForKey:@"delegate"];
+    }
+    
+    
 }
 
 #pragma mark - Private Methods
@@ -997,6 +1028,15 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 #pragma mark - Layouting
 
+- (void)setContentOffset:(CGPoint)offset
+{
+    [super setContentOffset:offset];
+    if([self longPressOptions] & NRGridViewLongPressUnhighlightUponScroll)
+    {
+        [self unhighlightPressuredCellAnimated:YES];
+    }
+}
+
 - (void)__layoutCellsWithLayoutStyle:(NRGridViewLayoutStyle)layoutStyle
               visibleCellsIndexPaths:(NSArray*)visibleCellsIndexPaths
 {
@@ -1191,6 +1231,14 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     }
 }
 
+- (void)unhighlightPressuredCellAnimated:(BOOL)animated
+{
+    [_longPressuredCell setHighlighted:NO animated:animated];
+    [_longPressuredCell release], _longPressuredCell=nil;
+}
+
+#pragma mark -
+
 - (void)__handleTapGestureRecognition:(UIGestureRecognizer*)tapGestureRecognizer
 {
     if(tapGestureRecognizer == _tapGestureRecognizer)
@@ -1231,6 +1279,44 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     }
 }
 
+- (void)__handleLongPressGestureRecognizer:(UIGestureRecognizer*)gestureRecognizer
+{
+    if(gestureRecognizer == _longPressGestureRecognizer)
+    {
+        if([gestureRecognizer state] == UIGestureRecognizerStateBegan)
+        {
+            CGPoint touchLocation = [gestureRecognizer locationInView:self];
+            
+            for(NRGridViewCell *aCell in _visibleCellsSet)
+            {
+                if(CGRectContainsPoint([aCell frame], 
+                                       touchLocation))
+                {
+                    if(_longPressuredCell != aCell)
+                    {
+                        [self unhighlightPressuredCellAnimated:YES];
+                        
+                        _longPressuredCell = [aCell retain];
+                        [_longPressuredCell setHighlighted:YES animated:YES];
+                    }
+
+                    [[self delegate] gridView:self didLongPressCellAtIndexPath:[aCell __indexPath]];
+                    
+                    break;
+                }
+            }
+        }
+        else if(([gestureRecognizer state] == UIGestureRecognizerStateEnded 
+                 && ([self longPressOptions] & NRGridViewLongPressUnhighlightUponPressGestureEnds))
+                || [gestureRecognizer state] == UIGestureRecognizerStateCancelled)
+        {
+            [self unhighlightPressuredCellAnimated:YES];
+        }
+
+    }
+}
+
+
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
     
     if([touches count] == 1)
@@ -1238,8 +1324,14 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
         UITouch* touch = [touches anyObject];
         CGPoint touchLocation = [touch locationInView:self];
         
-        [_highlightedCell setHighlighted:NO];
+        [_highlightedCell setHighlighted:NO animated:YES];
         [_highlightedCell release], _highlightedCell=nil;
+        
+        if([self longPressOptions] & NRGridViewLongPressUnhighlightUponAnotherTouch)
+        {
+            [self unhighlightPressuredCellAnimated:YES];
+        }
+        
         for(NRGridViewCell *aCell in _visibleCellsSet)
         {
             if(CGRectContainsPoint([aCell frame], 
@@ -1254,17 +1346,24 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
      
     [super touchesBegan:touches withEvent:event];
 }
+
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    [_highlightedCell setHighlighted:NO animated:YES];
+    [_highlightedCell setHighlighted:(_longPressuredCell==_highlightedCell) animated:YES];
     [_highlightedCell release], _highlightedCell=nil;
     [super touchesCancelled:touches withEvent:event];
 }
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    [_highlightedCell setHighlighted:NO animated:YES];
+    [_highlightedCell setHighlighted:(_longPressuredCell==_highlightedCell) animated:YES];
     [_highlightedCell release], _highlightedCell=nil;
     [super touchesEnded:touches withEvent:event];
+}
+
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
+{
+    return YES;
 }
 
 
@@ -1272,6 +1371,8 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 - (void)dealloc
 {
+    [_longPressuredCell release];
+    [_longPressGestureRecognizer release];
     [_sectionLayouts release];
     [_highlightedCell release];
     [_tapGestureRecognizer release];

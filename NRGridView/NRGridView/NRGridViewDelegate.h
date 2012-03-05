@@ -38,9 +38,14 @@
 @protocol NRGridViewDelegate <UIScrollViewDelegate>
 
 @optional
+- (void)gridView:(NRGridView*)gridView willDisplayCell:(NRGridViewCell*)cell atIndexPath:(NSIndexPath*)indexPath;
+
 - (void)gridView:(NRGridView*)gridView willSelectCellAtIndexPath:(NSIndexPath*)indexPath;
 - (void)gridView:(NRGridView*)gridView didSelectCellAtIndexPath:(NSIndexPath*)indexPath;
-- (void)gridView:(NRGridView*)gridView willDisplayCell:(NRGridViewCell*)cell atIndexPath:(NSIndexPath*)indexPath;
+
+// called when a long press occures on a cell. Won't be called (neither UILongPressGestureRecognizer will be instanciated) if the delegate does not implement this method
+- (void)gridView:(NRGridView*)gridView didLongPressCellAtIndexPath:(NSIndexPath*)indexPath; 
+
 
 - (void)gridView:(NRGridView*)gridView didSelectHeaderForSection:(NSInteger)section;
 

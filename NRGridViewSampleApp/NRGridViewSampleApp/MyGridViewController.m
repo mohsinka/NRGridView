@@ -72,7 +72,7 @@ static CGFloat const _kNRGridViewSampleCrazyScrollEnabled = NO; // For the lulz.
 }
 
 #pragma mark - View lifecycle
-
+- (BOOL)canBecomeFirstResponder{return YES;}
 
 - (void)loadView
 { 
@@ -153,6 +153,32 @@ static CGFloat const _kNRGridViewSampleCrazyScrollEnabled = NO; // For the lulz.
     [gridViewController release];
 }
 
+- (void)gridView:(NRGridView *)gridView didLongPressCellAtIndexPath:(NSIndexPath *)indexPath
+{
+    UIMenuController* menuController = [UIMenuController sharedMenuController];
+    NRGridViewCell* cell = [gridView cellAtIndexPath:indexPath];
+
+    [self becomeFirstResponder];
+    [menuController setMenuItems:[NSArray arrayWithObject:[[[UIMenuItem alloc] initWithTitle:@"Hooorayyyy!" 
+                                                                                     action:@selector(longPressOccured:)] autorelease]]];
+    [menuController setTargetRect:[cell frame] 
+                           inView:[self view]];
+    
+    [menuController setMenuVisible:YES animated:YES];
+    
+}
+
+#pragma mark - UIMenuController Actions
+
+- (void)longPressOccured:(id)sender
+{
+    [[self gridView] unhighlightPressuredCellAnimated:YES];
+}
+
+- (BOOL)canPerformAction:(SEL)action withSender:(id)sender
+{
+    return (action == @selector(longPressOccured:));
+}
 
 #pragma mark - Memory Management
 
