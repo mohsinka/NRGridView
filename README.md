@@ -21,12 +21,35 @@ If you got any suggestions, or if you need more UITableView-like methods, do not
 ##Latest Changelog
 ####Added
 
-- 1 Footer per section support.
+- Long pressure gesture recognition if the appropriate delegate method is implemented by your controller:
+
+`- (void)gridView:(NRGridView*)gridView didLongPressCellAtIndexPath:(NSIndexPath*)indexPath; 
+`
+
+- Long pressure options for automatic un-highlight of the pressured cell. Available options can be combined together:
+
+`typedef enum{
+`
+
+`NRGridViewLongPressUnhighlightUponPressGestureEnds = 0x01,              // Un-highlights the cell when the user's finger lefts the screen
+`
+
+`NRGridViewLongPressUnhighlightUponScroll           = 0x02,              // Un-highlights the cell when the user scrolls the gridView.
+`
+
+`NRGridViewLongPressUnhighlightUponAnotherTouch     = 0x04               // Un-highlights the cell when the user touches the same or another cell
+`
+
+`} NRGridViewLongPressUnhighlightOptions;`
+
+
 
 ####Fixed
-- scrollRectToSection:animated:scrollPosition: now scrolls to the end of the section if scrollPosition is NRGridViewScrollPositionAtRight/NRGridViewScrollPositionAtBottom
-- Warning message
-- NRGridViewCell's imageView default settings (now clips to bounds and nicer content mode)
+- Arithmetic crashes
+
+
+####Improved
+- Calling -setCellSize: now automatically refreshes the gridView
 
 
 
