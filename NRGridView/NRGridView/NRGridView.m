@@ -1121,6 +1121,9 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 {
     [super layoutSubviews];
 
+    if(CGRectIsEmpty([self frame]))
+        return;
+    
     [_highlightedCell setHighlighted:NO animated:NO];
     [_highlightedCell release], _highlightedCell=nil;
 
