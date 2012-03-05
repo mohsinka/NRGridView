@@ -340,6 +340,19 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     [self setNeedsLayout];
 }
 
+- (void)setCellSize:(CGSize)cellSize
+{
+    if(CGSizeEqualToSize(_cellSize, cellSize) == NO)
+    {
+        [self willChangeValueForKey:@"cellSize"];
+        _cellSize = cellSize;
+        
+        [self __reloadContentSize];
+        [self setNeedsLayout];
+        [self didChangeValueForKey:@"cellSize"];
+    }
+}
+
 - (void)setSelectedCellIndexPath:(NSIndexPath *)selectedCellIndexPath
 {
     [self selectCellAtIndexPath:selectedCellIndexPath animated:NO];
@@ -715,25 +728,33 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     if(layoutStyle == NRGridViewLayoutStyleVertical){
         NSInteger numberOfCellsPerLine = [self __numberOfCellsPerLineUsingSize:[self cellSize]
                                                                    layoutStyle:layoutStyle];
-        CGFloat lineWidth = numberOfCellsPerLine*[self cellSize].width;
         
-        NSInteger currentLine = (NSInteger)floor(indexPath.itemIndex/numberOfCellsPerLine);
-        NSInteger currentColumn = (NSInteger)(indexPath.itemIndex - numberOfCellsPerLine*currentLine);
-        
-        cellFrame.origin.y = CGRectGetMinY([sectionLayout contentFrame]) + floor([self cellSize].height * currentLine);
-        cellFrame.origin.x = floor([self cellSize].width * currentColumn) + floor(CGRectGetWidth([self bounds])/2. - lineWidth/2.);
+        if(numberOfCellsPerLine > 0)
+        {
+            CGFloat lineWidth = numberOfCellsPerLine*[self cellSize].width;
+            
+            NSInteger currentLine = (NSInteger)floor(indexPath.itemIndex/numberOfCellsPerLine);
+            NSInteger currentColumn = (NSInteger)(indexPath.itemIndex - numberOfCellsPerLine*currentLine);
+            
+            cellFrame.origin.y = CGRectGetMinY([sectionLayout contentFrame]) + floor([self cellSize].height * currentLine);
+            cellFrame.origin.x = floor([self cellSize].width * currentColumn) + floor(CGRectGetWidth([self bounds])/2. - lineWidth/2.);
+        }
         
     }else if(layoutStyle == NRGridViewLayoutStyleHorizontal)
     {
         NSInteger numberOfCellsPerColumn = [self __numberOfCellsPerColumnUsingSize:[self cellSize]
                                                                        layoutStyle:layoutStyle];
-        CGFloat columnHeight = numberOfCellsPerColumn*[self cellSize].height;
         
-        NSInteger currentColumn = (NSInteger)floor(indexPath.itemIndex/numberOfCellsPerColumn);
-        NSInteger currentLine = (NSInteger)(indexPath.itemIndex - numberOfCellsPerColumn*currentColumn);
-        
-        cellFrame.origin.x = CGRectGetMinX([sectionLayout contentFrame]) + floor([self cellSize].width * currentColumn);
-        cellFrame.origin.y = floor([self cellSize].height * currentLine) + floor(CGRectGetHeight([self bounds])/2. - columnHeight/2.);
+        if(numberOfCellsPerColumn > 0)
+        {
+            CGFloat columnHeight = numberOfCellsPerColumn*[self cellSize].height;
+            
+            NSInteger currentColumn = (NSInteger)floor(indexPath.itemIndex/numberOfCellsPerColumn);
+            NSInteger currentLine = (NSInteger)(indexPath.itemIndex - numberOfCellsPerColumn*currentColumn);
+            
+            cellFrame.origin.x = CGRectGetMinX([sectionLayout contentFrame]) + floor([self cellSize].width * currentColumn);
+            cellFrame.origin.y = floor([self cellSize].height * currentLine) + floor(CGRectGetHeight([self bounds])/2. - columnHeight/2.);
+        }
         
     }
     
@@ -1160,7 +1181,10 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 - (void)layoutSubviews
 {
     [super layoutSubviews];
-
+    
+    if(CGRectIsEmpty([self bounds]))
+        return;
+    
     [_highlightedCell setHighlighted:NO animated:NO];
     [_highlightedCell release], _highlightedCell=nil;
 
