@@ -1198,8 +1198,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 {
     if(tapGestureRecognizer == _tapGestureRecognizer)
     {
-        NRGridViewCell *selectedCell = [self cellAtIndexPath:[self selectedCellIndexPath]];
-        [selectedCell setSelected:NO animated:YES];
+        [self deselectCellAtIndexPath:_selectedCellIndexPath animated:YES];
         
         CGPoint touchLocation = [tapGestureRecognizer locationInView:self];
         
