@@ -336,7 +336,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 - (void)setCellSize:(CGSize)cellSize
 {
-    if(_cellSize != cellSize)
+    if(CGSizeEqualToSize(_cellSize, cellSize))
     {
         [self willChangeValueForKey:@"cellSize"];
         _cellSize = cellSize;
