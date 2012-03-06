@@ -271,6 +271,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
                                                                     action:@selector(__handleTapGestureRecognition:)];
     [_tapGestureRecognizer setNumberOfTapsRequired:1];
     [_tapGestureRecognizer setNumberOfTouchesRequired:1];
+    [_tapGestureRecognizer setDelegate:self];
     [self addGestureRecognizer:_tapGestureRecognizer];
 }
 
@@ -1387,6 +1388,9 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
 {
+    if([[touch view] isKindOfClass:[UIButton class]] 
+       && (gestureRecognizer == _longPressGestureRecognizer || gestureRecognizer == _tapGestureRecognizer))
+        return NO;
     return YES;
 }
 
