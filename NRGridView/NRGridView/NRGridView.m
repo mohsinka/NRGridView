@@ -261,6 +261,9 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 - (void)__commonInit
 {
+    _visibleCellsSet = [[NSMutableSet alloc] init];
+    _reusableCellsSet = [[NSMutableSet alloc] init];
+    
     [self setBackgroundColor:[UIColor whiteColor]];
     [self setLayoutStyle:NRGridViewLayoutStyleVertical];
     [self setCellSize:kNRGridViewDefaultCellSize];
@@ -767,6 +770,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 {
     [cellsSet makeObjectsPerformSelector:@selector(__setIndexPath:) withObject:nil];
     [cellsSet makeObjectsPerformSelector:@selector(removeFromSuperview)];
+
     [_reusableCellsSet unionSet:cellsSet];
     [_visibleCellsSet minusSet:cellsSet];
 }
@@ -1036,19 +1040,6 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     [self __reloadContentSize];
     
     [self __throwCellsInReusableQueue:_visibleCellsSet];
-    
-    if(_visibleCellsSet == nil)
-    {
-        [_visibleCellsSet release], _visibleCellsSet = nil;
-        _visibleCellsSet = [[NSMutableSet alloc] init];
-    }
-    
-    if(_reusableCellsSet == nil)
-    {
-        [_reusableCellsSet release], _reusableCellsSet = nil;
-        _reusableCellsSet = [[NSMutableSet alloc] init];
-    }
-    
     [self setSelectedCellIndexPath:nil];
     
     [self setNeedsLayout];
