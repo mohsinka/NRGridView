@@ -1036,13 +1036,19 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     [self __reloadContentSize];
     
     [self __throwCellsInReusableQueue:_visibleCellsSet];
-    [_visibleCellsSet release], _visibleCellsSet = nil;
-    _visibleCellsSet = [[NSMutableSet alloc] init];
     
+    if(_visibleCellsSet == nil)
+    {
+        [_visibleCellsSet release], _visibleCellsSet = nil;
+        _visibleCellsSet = [[NSMutableSet alloc] init];
+    }
     
-    [_reusableCellsSet release], _reusableCellsSet = nil;
-    _reusableCellsSet = [[NSMutableSet alloc] init];
-
+    if(_reusableCellsSet == nil)
+    {
+        [_reusableCellsSet release], _reusableCellsSet = nil;
+        _reusableCellsSet = [[NSMutableSet alloc] init];
+    }
+    
     [self setSelectedCellIndexPath:nil];
     
     [self setNeedsLayout];
