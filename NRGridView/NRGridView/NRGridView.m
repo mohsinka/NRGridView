@@ -412,7 +412,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     if(CGRectIsEmpty([self bounds]))
         return 1;
     return (layoutStyle == NRGridViewLayoutStyleHorizontal
-            ? floor(CGRectGetHeight([self bounds])/cellSize.height)
+            ? floor((CGRectGetHeight([self bounds]) - [self contentInset].top - [self contentInset].bottom)/cellSize.height)
             : NSIntegerMax);
 }
 
@@ -422,7 +422,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     if(CGRectIsEmpty([self bounds]))
        return 1;
     return (layoutStyle == NRGridViewLayoutStyleVertical
-            ? floor(CGRectGetWidth([self bounds])/cellSize.width)
+            ? floor((CGRectGetWidth([self bounds]) - [self contentInset].left - [self contentInset].right)/cellSize.width)
             : NSIntegerMax);
 }
 
