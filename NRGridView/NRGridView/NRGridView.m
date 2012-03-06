@@ -765,16 +765,14 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 - (void)__throwCellsInReusableQueue:(NSSet*)cellsSet
 {
-    [_visibleCellsSet makeObjectsPerformSelector:@selector(__setIndexPath:) withObject:nil];
-    [_visibleCellsSet makeObjectsPerformSelector:@selector(prepareForReuse)];
-    [_visibleCellsSet makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    [cellsSet makeObjectsPerformSelector:@selector(__setIndexPath:) withObject:nil];
+    [cellsSet makeObjectsPerformSelector:@selector(removeFromSuperview)];
     [_reusableCellsSet unionSet:cellsSet];
     [_visibleCellsSet minusSet:cellsSet];
 }
 - (void)__throwCellInReusableQueue:(NRGridViewCell*)cell
 {
     [cell __setIndexPath:nil];
-    [cell prepareForReuse];
     [cell removeFromSuperview];
     [_reusableCellsSet addObject:cell];
     [_visibleCellsSet removeObject:cell];
@@ -790,8 +788,10 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
         NSSet *dequeuableSet = [_reusableCellsSet filteredSetUsingPredicate:dequeueablePredicate];
         
         dequeuedCell = [[dequeuableSet anyObject] retain];
-        if(dequeuedCell != nil)
+        if(dequeuedCell != nil){
             [_reusableCellsSet removeObject:dequeuedCell];
+            [dequeuedCell prepareForReuse];
+        }
     }
         
     return [dequeuedCell autorelease];
