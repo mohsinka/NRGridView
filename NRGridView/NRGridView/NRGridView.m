@@ -387,6 +387,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
         [self removeGestureRecognizer:_longPressGestureRecognizer];
         [_longPressGestureRecognizer release], _longPressGestureRecognizer=nil;
         
+        [super setDelegate:aDelegate];
         delegate = aDelegate;
         
         if([aDelegate respondsToSelector:@selector(gridView:didLongPressCellAtIndexPath:)])
