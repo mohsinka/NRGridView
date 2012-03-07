@@ -160,7 +160,7 @@ static CGFloat const _kNRGridViewSampleCrazyScrollEnabled = NO; // For the lulz.
 
     [self becomeFirstResponder];
     [menuController setMenuItems:[NSArray arrayWithObject:[[[UIMenuItem alloc] initWithTitle:@"Hooorayyyy!" 
-                                                                                     action:@selector(longPressOccured:)] autorelease]]];
+                                                                                     action:@selector(handleHooray:)] autorelease]]];
     [menuController setTargetRect:[cell frame] 
                            inView:[self view]];
     
@@ -170,14 +170,14 @@ static CGFloat const _kNRGridViewSampleCrazyScrollEnabled = NO; // For the lulz.
 
 #pragma mark - UIMenuController Actions
 
-- (void)longPressOccured:(id)sender
+- (void)handleHooray:(id)sender
 {
     [[self gridView] unhighlightPressuredCellAnimated:YES];
 }
 
 - (BOOL)canPerformAction:(SEL)action withSender:(id)sender
 {
-    return (action == @selector(longPressOccured:));
+    return (action == @selector(handleHooray:));
 }
 
 #pragma mark - Memory Management

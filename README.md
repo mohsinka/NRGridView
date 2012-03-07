@@ -46,6 +46,7 @@ If you got any suggestions, or if you need more UITableView-like methods, do not
 
 ####Fixed
 - Arithmetic crashes
+- Content Insets
 
 
 ####Improved
