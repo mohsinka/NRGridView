@@ -137,5 +137,6 @@ static CGSize const kNRGridViewDefaultCellSize = {50, 70};
 
 // You can either manually deselect the pressured cell like we do in our sample app.
 - (void)unhighlightPressuredCellAnimated:(BOOL)animated;
+- (NSIndexPath*)indexPathForLongPressuredCell;
 
 @end

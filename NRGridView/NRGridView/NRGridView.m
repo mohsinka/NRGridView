@@ -335,6 +335,11 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     return [cell autorelease];
 }
 
+- (NSIndexPath*)indexPathForLongPressuredCell
+{
+    return [_longPressuredCell __indexPath];
+}
+
 #pragma mark - Setters
 
 - (void)setFrame:(CGRect)frame
