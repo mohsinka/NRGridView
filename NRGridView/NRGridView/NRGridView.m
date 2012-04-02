@@ -265,6 +265,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     _reusableCellsSet = [[NSMutableSet alloc] init];
     
     [self setBackgroundColor:[UIColor whiteColor]];
+    [self setAlwaysBounceVertical:YES];
     [self setLayoutStyle:NRGridViewLayoutStyleVertical];
     [self setCellSize:kNRGridViewDefaultCellSize];
     [self setLongPressOptions:(NRGridViewLongPressUnhighlightUponScroll|NRGridViewLongPressUnhighlightUponAnotherTouch)];
@@ -1037,7 +1038,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
         [_sectionLayouts addObject:sectionLayout];
         [sectionLayout release];
     }
-
+ 
     [self setContentSize:contentSize];
 }
 
