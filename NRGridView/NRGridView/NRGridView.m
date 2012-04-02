@@ -897,6 +897,8 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     
     if([self layoutStyle] == NRGridViewLayoutStyleVertical)
     {
+        contentOffsetForItem.x = [self contentOffset].x;
+        
         if(scrollPosition == NRGridViewScrollPositionNone){
             if(CGRectGetMaxY(itemRect) > CGRectGetMaxY([self bounds]))
                 scrollPosition = NRGridViewScrollPositionAtBottom;
@@ -927,6 +929,8 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
         
     }else if([self layoutStyle] == NRGridViewLayoutStyleHorizontal)
     {
+        contentOffsetForItem.y = [self contentOffset].y;
+
         if(scrollPosition == NRGridViewScrollPositionNone){
             if(CGRectGetMaxX(itemRect) > CGRectGetMaxX([self bounds]))
                 scrollPosition = NRGridViewScrollPositionAtRight;
