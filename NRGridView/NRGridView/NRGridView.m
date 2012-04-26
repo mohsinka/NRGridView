@@ -1007,7 +1007,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
                                                      sectionHeaderSize.height)];
             [sectionLayout setContentFrame:CGRectMake(0, 
                                                       CGRectGetMaxY([sectionLayout headerFrame]), 
-                                                      sectionHeaderSize.width, 
+                                                      CGRectGetWidth([self bounds]), 
                                                       contentHeightInSection)];
             [sectionLayout setFooterFrame:CGRectMake(0, 
                                                      CGRectGetMaxY([sectionLayout contentFrame]), 
@@ -1030,7 +1030,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
             [sectionLayout setContentFrame:CGRectMake(CGRectGetMaxX([sectionLayout headerFrame]), 
                                                       0, 
                                                       contentWidthInSection, 
-                                                      sectionHeaderSize.height)];
+                                                      CGRectGetHeight([self bounds]))];
             [sectionLayout setFooterFrame:CGRectMake(CGRectGetMaxX([sectionLayout contentFrame]), 
                                                      0, 
                                                      sectionFooterSize.width, 
