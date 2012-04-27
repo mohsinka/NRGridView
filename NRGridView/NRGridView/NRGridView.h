@@ -85,8 +85,8 @@ static CGSize const kNRGridViewDefaultCellSize = {50, 70};
 - (id)initWithLayoutStyle:(NRGridViewLayoutStyle)layoutStyle;
 @property (nonatomic, assign) NRGridViewLayoutStyle layoutStyle;
 
-@property (nonatomic, assign) id<NRGridViewDelegate> delegate;
-@property (nonatomic, assign) id<NRGridViewDataSource> dataSource;
+@property (nonatomic, assign) IBOutlet id<NRGridViewDelegate> delegate;
+@property (nonatomic, assign) IBOutlet id<NRGridViewDataSource> dataSource;
 
 /** Determines the size of every cells passed into the gridView. Default value is kNRGridViewDefaultCellSize */
 @property (nonatomic, assign) CGSize cellSize;
