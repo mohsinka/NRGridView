@@ -319,6 +319,7 @@ static CGSize const _kNRGridViewCellLayoutSpacing = {5,5};
 {
     CGRect cellBounds = [self bounds];
     [[self selectionBackgroundView] setFrame:cellBounds];
+    [[self backgroundView] setFrame:cellBounds];
     [self sendSubviewToBack:[self selectionBackgroundView]];
     [self sendSubviewToBack:[self backgroundView]];
     
