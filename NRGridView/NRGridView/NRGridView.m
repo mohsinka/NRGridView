@@ -392,22 +392,31 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 {
     if(delegate != aDelegate)
     {
-        [self willChangeValueForKey:@"delegate"];
-        [self removeGestureRecognizer:_longPressGestureRecognizer];
-        [_longPressGestureRecognizer release], _longPressGestureRecognizer=nil;
-        
+        [self willChangeValueForKey:@"delegate"];        
         [super setDelegate:aDelegate];
         delegate = aDelegate;
         
+        // Dixit Apple: 
+        // "Don’t Use Accessor Methods in Initializer Methods and dealloc"
+        // ...
+        // Sure, but Y U DO CALL -setDelegate: with a nil argument when [super dealloc] is being called....????
+
+        
         if([aDelegate respondsToSelector:@selector(gridView:didLongPressCellAtIndexPath:)])
         {
-            _longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(__handleLongPressGestureRecognizer:)];
-            [_longPressGestureRecognizer setDelegate:self];
-            [_longPressGestureRecognizer setNumberOfTapsRequired:0];
-            [_longPressGestureRecognizer setNumberOfTouchesRequired:1];
-            
-            [self addGestureRecognizer:_longPressGestureRecognizer];
+            if(_longPressGestureRecognizer == nil)
+            {
+                _longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(__handleLongPressGestureRecognizer:)];
+                [_longPressGestureRecognizer setDelegate:self];
+                [_longPressGestureRecognizer setNumberOfTapsRequired:0];
+                [_longPressGestureRecognizer setNumberOfTouchesRequired:1];
+                [self addGestureRecognizer:_longPressGestureRecognizer];
+            }
+            [_longPressGestureRecognizer setEnabled:YES];
         }
+        else
+            [_longPressGestureRecognizer setEnabled:NO];
+        
         [self didChangeValueForKey:@"delegate"];
     }
     
