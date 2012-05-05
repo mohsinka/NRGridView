@@ -610,9 +610,17 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     NRGridViewSectionLayout *sectionLayout = [self __sectionLayoutAtIndex:section];
     CGRect sectionHeaderFrame =  [sectionLayout headerFrame];
     
+    BOOL hasTranslucentNavigationBar = ([[self dataSource] isKindOfClass:[UIViewController class]] 
+                                        && [[(UIViewController*)[self dataSource] parentViewController] isKindOfClass:[UINavigationController class]]
+                                        && [[(UINavigationController*)[(UIViewController*)[self dataSource] parentViewController] navigationBar] isTranslucent]);
+    CGPoint headerOffset = CGPointZero;
+    
+    if(hasTranslucentNavigationBar)
+        headerOffset.y = CGRectGetHeight([[(UINavigationController*)[(UIViewController*)[self dataSource] parentViewController] navigationBar] frame]);
+    
     if(layoutStyle == NRGridViewLayoutStyleVertical){
-        if(CGRectGetMinY(sectionHeaderFrame) < [self contentOffset].y)
-            sectionHeaderFrame.origin.y = [self contentOffset].y;
+        if(CGRectGetMinY(sectionHeaderFrame) < ([self contentOffset].y + headerOffset.y))
+            sectionHeaderFrame.origin.y = ([self contentOffset].y + headerOffset.y);
         if(CGRectGetMaxY(sectionHeaderFrame) > CGRectGetMaxY([sectionLayout contentFrame]))
             sectionHeaderFrame.origin.y = CGRectGetMaxY([sectionLayout contentFrame]) - CGRectGetHeight(sectionHeaderFrame) ;
         
