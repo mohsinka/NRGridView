@@ -248,9 +248,10 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 @synthesize tapGestureRecognizer = _tapGestureRecognizer;
 @synthesize longPressGestureRecognizer = _longPressGestureRecognizer;
 
+@dynamic delegate; // Dynamic because inherited from UIScrollView's delegate property.
+
 @synthesize layoutStyle = _layoutStyle;
 @synthesize dataSource = _dataSource;
-@synthesize delegate;
 @synthesize cellSize = _cellSize;
 @synthesize selectedCellIndexPath = _selectedCellIndexPath;
 @synthesize longPressOptions = _longPressOptions;
@@ -277,6 +278,14 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     [_tapGestureRecognizer setNumberOfTouchesRequired:1];
     [_tapGestureRecognizer setDelegate:self];
     [self addGestureRecognizer:_tapGestureRecognizer];
+    
+    
+    // Long press gesture recognizer
+    _longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(__handleLongPressGestureRecognizer:)];
+    [_longPressGestureRecognizer setDelegate:self];
+    [_longPressGestureRecognizer setNumberOfTapsRequired:0];
+    [_longPressGestureRecognizer setNumberOfTouchesRequired:1];
+    [self addGestureRecognizer:_longPressGestureRecognizer];
 }
 
 - (id)initWithLayoutStyle:(NRGridViewLayoutStyle)layoutStyle
@@ -388,40 +397,6 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     }
 }
 
-- (void)setDelegate:(id<NRGridViewDelegate>)aDelegate
-{
-    if(delegate != aDelegate)
-    {
-        [self willChangeValueForKey:@"delegate"];        
-        [super setDelegate:aDelegate];
-        delegate = aDelegate;
-        
-        // Dixit Apple: 
-        // "Don’t Use Accessor Methods in Initializer Methods and dealloc"
-        // ...
-        // Sure, but Y U DO CALL -setDelegate: with a nil argument when [super dealloc] is being called....????
-
-        
-        if([aDelegate respondsToSelector:@selector(gridView:didLongPressCellAtIndexPath:)])
-        {
-            if(_longPressGestureRecognizer == nil)
-            {
-                _longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(__handleLongPressGestureRecognizer:)];
-                [_longPressGestureRecognizer setDelegate:self];
-                [_longPressGestureRecognizer setNumberOfTapsRequired:0];
-                [_longPressGestureRecognizer setNumberOfTouchesRequired:1];
-                [self addGestureRecognizer:_longPressGestureRecognizer];
-            }
-            [_longPressGestureRecognizer setEnabled:YES];
-        }
-        else
-            [_longPressGestureRecognizer setEnabled:NO];
-        
-        [self didChangeValueForKey:@"delegate"];
-    }
-    
-    
-}
 
 #pragma mark - Private Methods
 
@@ -1069,6 +1044,8 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     
     [self __throwCellsInReusableQueue:_visibleCellsSet];
     [self setSelectedCellIndexPath:nil];
+    
+    [[self longPressGestureRecognizer] setEnabled:[[self dataSource] respondsToSelector:@selector(gridView:didLongPressCellAtIndexPath:)]];
     
     [self setNeedsLayout];
 }
