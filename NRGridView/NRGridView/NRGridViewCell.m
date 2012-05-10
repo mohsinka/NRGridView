@@ -166,6 +166,11 @@
         [_imageView setContentMode:UIViewContentModeScaleAspectFit];
         [_imageView setClipsToBounds:YES];
         
+        [_imageView addObserver:self 
+                     forKeyPath:@"image" 
+                        options:NSKeyValueObservingOptionNew 
+                        context:nil];
+        
         [[self contentView] addSubview:_imageView];
     }
     return [[_imageView retain] autorelease];
@@ -414,11 +419,21 @@ static CGSize const _kNRGridViewCellLayoutSpacing = {5,5};
     [[self detailedTextLabel] setFrame:detailedTextLabelFrame];
 }
 
+#pragma mark - KVO
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if([keyPath isEqualToString:@"image"] && object == [self imageView])
+    {
+        [self setNeedsLayout];
+    }
+}
 
 #pragma mark - Memory
 
 - (void)dealloc
 {    
+    [_imageView removeObserver:self forKeyPath:@"image"];
     [_contentView release];
     [_reuseIdentifier release];
     
