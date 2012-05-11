@@ -1390,7 +1390,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
 {
-    if([[touch view] isKindOfClass:[UIButton class]] 
+    if([[touch view] isKindOfClass:[UIControl class]] 
        && (gestureRecognizer == _longPressGestureRecognizer || gestureRecognizer == _tapGestureRecognizer))
         return NO;
     return YES;
