@@ -328,7 +328,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 - (NSArray*)indexPathsForVisibleCells
 {
-    return [[self visibleCells] valueForKeyPath:@"@unionOfObjects.indexPath"];
+    return [[self visibleCells] valueForKeyPath:@"@unionOfObjects.__indexPath"];
 }
 
 - (NRGridViewCell*)cellAtIndexPath:(NSIndexPath*)indexPath
