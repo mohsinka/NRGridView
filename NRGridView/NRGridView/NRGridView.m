@@ -6,7 +6,7 @@
 
 /***********************************************************************************
  *
- * Copyright (c) 2012 Novedia Regions
+ * Copyright (c) 2012 Louka Desroziers
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -1390,9 +1390,12 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
 {
-    if( ([[touch view] isKindOfClass:[UIControl class]] && [[touch view] isUserInteractionEnabled])
-       && (gestureRecognizer == _longPressGestureRecognizer || gestureRecognizer == _tapGestureRecognizer))
+    if( (gestureRecognizer == _longPressGestureRecognizer || gestureRecognizer == _tapGestureRecognizer)
+       && ([[touch view] isKindOfClass:[UIControl class]] && [[touch view] isUserInteractionEnabled]))
         return NO;
+    else if(gestureRecognizer == _longPressGestureRecognizer)
+        return ([[self delegate] respondsToSelector:@selector(gridView:didLongPressCellAtIndexPath:)]);
+    
     return YES;
 }
 

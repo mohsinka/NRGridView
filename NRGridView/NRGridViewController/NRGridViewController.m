@@ -5,7 +5,7 @@
 
 /***********************************************************************************
  *
- * Copyright (c) 2012 Novedia Regions
+ * Copyright (c) 2012 Louka Desroziers
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

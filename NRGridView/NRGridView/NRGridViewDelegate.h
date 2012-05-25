@@ -5,7 +5,7 @@
 
 /***********************************************************************************
  *
- * Copyright (c) 2012 Novedia Regions
+ * Copyright (c) 2012 Louka Desroziers
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,7 +43,7 @@
 - (void)gridView:(NRGridView*)gridView willSelectCellAtIndexPath:(NSIndexPath*)indexPath;
 - (void)gridView:(NRGridView*)gridView didSelectCellAtIndexPath:(NSIndexPath*)indexPath;
 
-// called when a long press occures on a cell. Won't be called (neither UILongPressGestureRecognizer will be instanciated) if the delegate does not implement this method
+// called when a long presure occures on a cell
 - (void)gridView:(NRGridView*)gridView didLongPressCellAtIndexPath:(NSIndexPath*)indexPath; 
 
 
