@@ -19,39 +19,9 @@ It also has a 'layoutStyle'. It means you can use it as a vertical gridView, or 
 If you got any suggestions, or if you need more UITableView-like methods, do not hesitate to email me at l.desroziers@novediagroup.com
 
 ##Latest Changelog
-####Added
-
-- Long pressure gesture recognition if the appropriate delegate method is implemented by your controller:
-
-`- (void)gridView:(NRGridView*)gridView didLongPressCellAtIndexPath:(NSIndexPath*)indexPath; 
-`
-
-- Long pressure options for automatic un-highlight of the pressured cell. Available options can be combined together:
-
-`typedef enum{
-`
-
-`NRGridViewLongPressUnhighlightUponPressGestureEnds = 0x01,              // Un-highlights the cell when the user's finger lefts the screen
-`
-
-`NRGridViewLongPressUnhighlightUponScroll           = 0x02,              // Un-highlights the cell when the user scrolls the gridView.
-`
-
-`NRGridViewLongPressUnhighlightUponAnotherTouch     = 0x04               // Un-highlights the cell when the user touches the same or another cell
-`
-
-`} NRGridViewLongPressUnhighlightOptions;`
-
-
-
-####Fixed
-- Arithmetic crashes
-- Content Insets
-
 
 ####Improved
-- Calling -setCellSize: now automatically refreshes the gridView
-
+- Reloading the gridView is now 2.5x faster on a 3GS (Using structs instead of -respondsToSelector: for both delegate & dataSource)
 
 
 ##Comments
