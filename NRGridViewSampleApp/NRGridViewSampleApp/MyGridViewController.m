@@ -8,7 +8,7 @@
 
 #import "MyGridViewController.h"
 
-static CGFloat const _kNRGridViewSampleCrazyScrollEnabled = NO; // For the lulz.
+static BOOL const _kNRGridViewSampleCrazyScrollEnabled = NO; // For the lulz.
 @implementation MyGridViewController
 
 #pragma mark - Crazy Scroll LULZ

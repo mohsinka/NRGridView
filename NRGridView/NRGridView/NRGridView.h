@@ -80,6 +80,26 @@ static CGSize const kNRGridViewDefaultCellSize = {50, 70};
     NSMutableSet    *_reusableCellsSet;
     NSMutableSet    *_visibleCellsSet;
     NRGridViewCell  *_highlightedCell, *_longPressuredCell;
+    
+    struct {
+        unsigned int willDisplayCell:1;  
+        unsigned int willSelectCell:1;  
+        unsigned int didSelectCell:1;  
+        unsigned int didLongPressCell:1;  
+        unsigned int didSelectHeader:1;  
+    } _gridViewDelegateRespondsTo;
+    
+    struct {
+        unsigned int numberOfSections:1;  
+        unsigned int titleForHeader:1;  
+        unsigned int viewForHeader:1;  
+        unsigned int heightForHeader:1;  
+        unsigned int widthForHeader:1;  
+        unsigned int titleForFooter:1;  
+        unsigned int viewForFooter:1;  
+        unsigned int heightForFooter:1;  
+        unsigned int widthForFooter:1;  
+    } _gridViewDataSourceRespondsTo;
 }
 
 - (id)initWithLayoutStyle:(NRGridViewLayoutStyle)layoutStyle;

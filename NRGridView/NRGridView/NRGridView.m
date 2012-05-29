@@ -359,6 +359,43 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     [self setNeedsLayout];
 }
 
+- (void)setDelegate:(id<NRGridViewDelegate>)delegate
+{
+    [super setDelegate:delegate];
+    
+    _gridViewDelegateRespondsTo.willDisplayCell = [delegate respondsToSelector:@selector(gridView:willDisplayCell:atIndexPath:)];
+    _gridViewDelegateRespondsTo.willSelectCell = [delegate respondsToSelector:@selector(gridView:willSelectCellAtIndexPath:)];
+    _gridViewDelegateRespondsTo.didSelectCell = [delegate respondsToSelector:@selector(gridView:didSelectCellAtIndexPath:)];
+    _gridViewDelegateRespondsTo.didLongPressCell = [delegate respondsToSelector:@selector(gridView:didLongPressCellAtIndexPath:)];
+    
+    _gridViewDelegateRespondsTo.didSelectHeader = [delegate respondsToSelector:@selector(gridView:didSelectHeaderForSection:)];
+
+}
+
+- (void)setDataSource:(id<NRGridViewDataSource>)dataSource
+{
+    if(_dataSource != dataSource)
+    {
+        [self willChangeValueForKey:@"dataSource"];
+        _dataSource = dataSource;
+        
+        _gridViewDataSourceRespondsTo.numberOfSections = [dataSource respondsToSelector:@selector(numberOfSectionsInGridView:)];
+        
+        _gridViewDataSourceRespondsTo.titleForHeader = [dataSource respondsToSelector:@selector(gridView:titleForHeaderInSection:)];
+        _gridViewDataSourceRespondsTo.viewForHeader = [dataSource respondsToSelector:@selector(gridView:viewForHeaderInSection:)];
+        _gridViewDataSourceRespondsTo.heightForHeader = [dataSource respondsToSelector:@selector(gridView:heightForHeaderInSection:)];
+        _gridViewDataSourceRespondsTo.widthForHeader = [dataSource respondsToSelector:@selector(gridView:heightForHeaderInSection:)];
+
+        _gridViewDataSourceRespondsTo.titleForFooter = [dataSource respondsToSelector:@selector(gridView:titleForFooterInSection:)];
+        _gridViewDataSourceRespondsTo.viewForFooter = [dataSource respondsToSelector:@selector(gridView:viewForFooterInSection:)];
+        _gridViewDataSourceRespondsTo.heightForFooter = [dataSource respondsToSelector:@selector(gridView:heightForFooterInSection:)];
+        _gridViewDataSourceRespondsTo.widthForFooter = [dataSource respondsToSelector:@selector(gridView:widthForFooterInSection:)];
+
+        
+        [self didChangeValueForKey:@"dataSource"];
+    }
+}
+
 - (void)setCellSize:(CGSize)cellSize
 {
     if(CGSizeEqualToSize(_cellSize, cellSize) == NO)
@@ -424,10 +461,10 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 - (BOOL)__hasHeaderInSection:(NSInteger)sectionIndex
 {
-    return ( ([[self dataSource] respondsToSelector:@selector(gridView:titleForHeaderInSection:)] && [[self dataSource] gridView:self 
-                                                                                                         titleForHeaderInSection:sectionIndex] !=nil)
-            || ([[self dataSource] respondsToSelector:@selector(gridView:viewForHeaderInSection:)] && [[self dataSource] gridView:self 
-                                                                                                           viewForHeaderInSection:sectionIndex] !=nil) );
+    return ( (_gridViewDataSourceRespondsTo.titleForHeader && [[self dataSource] gridView:self 
+                                                                  titleForHeaderInSection:sectionIndex] !=nil)
+            || (_gridViewDataSourceRespondsTo.viewForHeader && [[self dataSource] gridView:self 
+                                                                    viewForHeaderInSection:sectionIndex] !=nil) );
 }
 
 
@@ -444,7 +481,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
                            : CGRectGetWidth([self bounds]));
     
     if([self layoutStyle] == NRGridViewLayoutStyleHorizontal
-       && [[self dataSource] respondsToSelector:@selector(gridView:widthForHeaderInSection:)])
+       && _gridViewDataSourceRespondsTo.widthForHeader)
         headerWidth = [[self dataSource] gridView:self 
                           widthForHeaderInSection:sectionIndex];
     
@@ -464,7 +501,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
                             : CGRectGetHeight([self bounds]));
     
     if([self layoutStyle] == NRGridViewLayoutStyleVertical
-       && [[self dataSource] respondsToSelector:@selector(gridView:heightForHeaderInSection:)])
+       && _gridViewDataSourceRespondsTo.heightForHeader)
         headerHeight = [[self dataSource] gridView:self 
                           heightForHeaderInSection:sectionIndex];
     
@@ -499,10 +536,10 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 - (BOOL)__hasFooterInSection:(NSInteger)sectionIndex
 {
-    return ( ([[self dataSource] respondsToSelector:@selector(gridView:titleForFooterInSection:)] && [[self dataSource] gridView:self 
-                                                                                                         titleForFooterInSection:sectionIndex] !=nil)
-            || ([[self dataSource] respondsToSelector:@selector(gridView:viewForFooterInSection:)] && [[self dataSource] gridView:self 
-                                                                                                           viewForFooterInSection:sectionIndex] !=nil) );
+    return ( (_gridViewDataSourceRespondsTo.titleForFooter && [[self dataSource] gridView:self 
+                                                                  titleForFooterInSection:sectionIndex] !=nil)
+            || (_gridViewDataSourceRespondsTo.viewForFooter && [[self dataSource] gridView:self 
+                                                                    viewForFooterInSection:sectionIndex] !=nil) );
 }
 
 - (CGFloat)__widthForFooterAtSectionIndex:(NSInteger)sectionIndex
@@ -518,7 +555,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
                            : CGRectGetWidth([self bounds]));
     
     if([self layoutStyle] == NRGridViewLayoutStyleHorizontal
-       && [[self dataSource] respondsToSelector:@selector(gridView:widthForFooterInSection:)])
+       && _gridViewDataSourceRespondsTo.widthForFooter)
         footerWidth = [[self dataSource] gridView:self 
                           widthForFooterInSection:sectionIndex];
     
@@ -538,7 +575,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
                             : CGRectGetHeight([self bounds]));
     
     if([self layoutStyle] == NRGridViewLayoutStyleVertical
-       && [[self dataSource] respondsToSelector:@selector(gridView:heightForFooterInSection:)])
+       && _gridViewDataSourceRespondsTo.heightForFooter)
         footerHeight = [[self dataSource] gridView:self 
                           heightForFooterInSection:sectionIndex];
     
@@ -637,12 +674,12 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     
     if(header == nil){
         // header needs to be created...
-        if([[self dataSource] respondsToSelector:@selector(gridView:viewForHeaderInSection:)])
+        if(_gridViewDataSourceRespondsTo.viewForHeader)
         {
             header = [[[self dataSource] gridView:self 
                            viewForHeaderInSection:section] retain];
         }
-        else if([[self dataSource] respondsToSelector:@selector(gridView:titleForHeaderInSection:)])
+        else if(_gridViewDataSourceRespondsTo.titleForHeader)
         {
             header = [[NRGridViewHeader alloc] initWithFrame:CGRectZero];
             [[(NRGridViewHeader*)header titleLabel] setText:[[self dataSource] gridView:self
@@ -693,12 +730,12 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     
     if(footer == nil){
         // header needs to be created...
-        if([[self dataSource] respondsToSelector:@selector(gridView:viewForFooterInSection:)])
+        if(_gridViewDataSourceRespondsTo.viewForFooter)
         {
             footer = [[[self dataSource] gridView:self 
                            viewForFooterInSection:section] retain];
         }
-        else if([[self dataSource] respondsToSelector:@selector(gridView:titleForFooterInSection:)])
+        else if(_gridViewDataSourceRespondsTo.titleForFooter)
         {
             footer = [[NRGridViewHeader alloc] initWithFrame:CGRectZero];
             [[(NRGridViewHeader*)footer titleLabel] setText:[[self dataSource] gridView:self
@@ -963,7 +1000,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     _sectionLayouts = [[NSMutableArray alloc] init];
     
     CGSize contentSize = CGSizeZero;
-    NSInteger numberOfSections  = ([[self dataSource] respondsToSelector:@selector(numberOfSectionsInGridView:)]
+    NSInteger numberOfSections  = (_gridViewDataSourceRespondsTo.numberOfSections
                                    ? [[self dataSource] numberOfSectionsInGridView:self]
                                    : 1);
     
@@ -1045,10 +1082,9 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     [self __throwCellsInReusableQueue:_visibleCellsSet];
     [self setSelectedCellIndexPath:nil];
     
-    [[self longPressGestureRecognizer] setEnabled:[[self dataSource] respondsToSelector:@selector(gridView:didLongPressCellAtIndexPath:)]];
+    [[self longPressGestureRecognizer] setEnabled:_gridViewDelegateRespondsTo.didLongPressCell];
     
-    [self setNeedsLayout];
-}
+    [self setNeedsLayout];}
 
 #pragma mark - Layouting
 
@@ -1068,10 +1104,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     object_getInstanceVariable(self, "_verticalScrollIndicator", (void*)&verticalScrollIndicator);
     object_getInstanceVariable(self, "_horizontalScrollIndicator", (void*)&horizontalScrollIndicator);
 
-    
-    // better than calling -respondsToSelector: each time.
-    BOOL informDelegateBeforeDisplayingCell = [[self delegate] respondsToSelector:@selector(gridView:willDisplayCell:atIndexPath:)]; 
-   
+       
     NSArray *visibleSections = [self __sectionsInRect:[self bounds]];
     
     // sections layout that won't be visible
@@ -1164,7 +1197,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
                  if([self selectedCellIndexPath])
                      [cell setSelected:[cellIndexPath isEqual:[self selectedCellIndexPath]]];
                  
-                 if(informDelegateBeforeDisplayingCell)
+                 if(_gridViewDelegateRespondsTo.willDisplayCell)
                      [[self delegate] gridView:self 
                                willDisplayCell:cell 
                                    atIndexPath:cellIndexPath];
@@ -1212,7 +1245,6 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
                 visibleCellsIndexPaths:visibleCellsIndexPaths];
     
     [visibleCellsIndexPaths release];
-    
 }
 
 
@@ -1274,7 +1306,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
         
         CGPoint touchLocation = [tapGestureRecognizer locationInView:self];
         
-        if([[self delegate] respondsToSelector:@selector(gridView:didSelectHeaderForSection:)]){
+        if(_gridViewDelegateRespondsTo.didSelectHeader){
             for(NRGridViewSectionLayout* aSectionLayout in _sectionLayouts)
             {
                 if([aSectionLayout headerView] 
@@ -1292,12 +1324,12 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
             if(CGRectContainsPoint([aCell frame], 
                                    touchLocation))
             {
-                if([[self delegate] respondsToSelector:@selector(gridView:willSelectCellAtIndexPath:)])
+                if(_gridViewDelegateRespondsTo.willSelectCell)
                     [[self delegate] gridView:self willSelectCellAtIndexPath:[aCell __indexPath]];
 
                 [self selectCellAtIndexPath:[aCell __indexPath] animated:YES];
                 
-                if([[self delegate] respondsToSelector:@selector(gridView:didSelectCellAtIndexPath:)])
+                if(_gridViewDelegateRespondsTo.didSelectCell)
                     [[self delegate] gridView:self didSelectCellAtIndexPath:[aCell __indexPath]];
                 
                 break;
@@ -1394,7 +1426,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
        && ([[touch view] isKindOfClass:[UIControl class]] && [[touch view] isUserInteractionEnabled]))
         return NO;
     else if(gestureRecognizer == _longPressGestureRecognizer)
-        return ([[self delegate] respondsToSelector:@selector(gridView:didLongPressCellAtIndexPath:)]);
+        return _gridViewDelegateRespondsTo.didLongPressCell;
     
     return YES;
 }
