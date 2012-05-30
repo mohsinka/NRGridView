@@ -172,6 +172,7 @@
 
 - (void)dealloc
 {
+    [_gridView release];
     [super dealloc];
 }
 
