@@ -128,8 +128,10 @@
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    [[self gridView] deselectCellAtIndexPath:[[self gridView] selectedCellIndexPath] 
-                                    animated:animated];
+    
+    if([[self gridView] allowsMultipleSelections] == NO)
+        [[self gridView] deselectCellAtIndexPath:[[self gridView] indexPathForSelectedCell] 
+                                        animated:animated];
 }
 
 #pragma mark - GridView DataSource

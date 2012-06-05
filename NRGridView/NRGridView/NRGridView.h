@@ -80,6 +80,7 @@ static CGSize const kNRGridViewDefaultCellSize = {50, 70};
     NSMutableSet    *_reusableCellsSet;
     NSMutableSet    *_visibleCellsSet;
     NRGridViewCell  *_highlightedCell, *_longPressuredCell;
+    NSMutableArray  *_selectedCellsIndexPaths;
     
     struct {
         unsigned int willDisplayCell:1;  
@@ -120,7 +121,18 @@ static CGSize const kNRGridViewDefaultCellSize = {50, 70};
 - (NRGridViewCell*)cellAtIndexPath:(NSIndexPath*)indexPath; // returns nil if cell is not visible.
 
 /** Handling (de)selection */
-@property (nonatomic, retain)   NSIndexPath *selectedCellIndexPath;
+@property (nonatomic, retain)       NSIndexPath *selectedCellIndexPath __attribute__ ((deprecated));
+
+@property (nonatomic, assign)       BOOL        allowsMultipleSelections;
+
+/** Returns the indexPath for the selected cell. 
+ * @discussion If the gridView is allowed to perform multiple selections, the latest selected indexPath is returned.
+ */
+- (NSIndexPath *)indexPathForSelectedCell;
+
+/** Returns the indexPaths for selected cells. */
+- (NSArray *)indexPathsForSelectedCells;
+
 
 - (void)selectCellAtIndexPath:(NSIndexPath*)indexPath 
                      animated:(BOOL)animated;
@@ -131,6 +143,7 @@ static CGSize const kNRGridViewDefaultCellSize = {50, 70};
 
 - (void)deselectCellAtIndexPath:(NSIndexPath*)indexPath 
                        animated:(BOOL)animated;
+
 
 
 /** Getting rects, and scroll to specific section/indexPath */

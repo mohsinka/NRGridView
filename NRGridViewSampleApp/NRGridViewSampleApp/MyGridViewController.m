@@ -77,6 +77,7 @@ static BOOL const _kNRGridViewSampleCrazyScrollEnabled = NO; // For the lulz.
 - (void)loadView
 { 
     [super loadView];
+
     [[self gridView] setCellSize:CGSizeMake(100, 75)];
 }
 
