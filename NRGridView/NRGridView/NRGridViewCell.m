@@ -168,7 +168,7 @@
         
         [_imageView addObserver:self 
                      forKeyPath:@"image" 
-                        options:NSKeyValueObservingOptionNew 
+                        options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld
                         context:nil];
         
         [[self contentView] addSubview:_imageView];
@@ -425,7 +425,14 @@ static CGSize const _kNRGridViewCellLayoutSpacing = {5,5};
 {
     if([keyPath isEqualToString:@"image"] && object == [self imageView])
     {
-        [self setNeedsLayout];
+        UIImage *old, *new;
+        old = [change objectForKey:NSKeyValueChangeOldKey];
+        new = [change objectForKey:NSKeyValueChangeNewKey];
+        
+        
+        if( ((NSNull*)old == [NSNull null] || (NSNull*)new == [NSNull null])  
+           || CGSizeEqualToSize([old size], [new size]) == NO)
+            [self setNeedsLayout];
     }
 }
 
