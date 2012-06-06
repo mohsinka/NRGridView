@@ -353,7 +353,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 - (NSIndexPath*)selectedCellIndexPath { return [self indexPathForSelectedCell]; } /** Deprecated */
 
-- (NSIndexPath*)indexPathForSelectedCell { return [[self indexPathsForSelectedCells] lastObject]; }
+- (NSIndexPath*)indexPathForSelectedCell { return [_selectedCellsIndexPaths lastObject]; }
 - (NSArray*)indexPathsForSelectedCells { return [NSArray arrayWithArray:_selectedCellsIndexPaths]; }
 
 #pragma mark - Setters
@@ -1211,7 +1211,8 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
             
             
             NSMutableIndexSet *sectionVisibleContentIndexes = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(firstVisibleCellIndex, cellIndexesRange)];
-            
+
+
             [sectionVisibleContentIndexes enumerateIndexesUsingBlock:^(NSUInteger cellIndexInSection, BOOL *stop)
              {
                  NSIndexPath *cellIndexPath = [NSIndexPath indexPathForItemIndex:cellIndexInSection 
@@ -1257,6 +1258,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
     NSMutableArray *visibleCellsIndexPaths = [[NSMutableArray alloc] init];
     NSSet *visibleCellsSetCopy = [_visibleCellsSet copy];
+    
     for(NRGridViewCell* visibleCell in visibleCellsSetCopy)
     {
         [visibleCell setFrame:[self __rectForCellAtIndexPath:[visibleCell __indexPath] 
@@ -1269,6 +1271,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
             [visibleCellsIndexPaths addObject:[visibleCell __indexPath]]; // gather the index path of the enumerated cell if it's still visible on screen.
         }
     }
+    
     [visibleCellsSetCopy release];
     
     
@@ -1350,8 +1353,6 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 {
     if(tapGestureRecognizer == _tapGestureRecognizer)
     {
-        if([self allowsMultipleSelections] == NO)
-            [self deselectCellsAtIndexPaths:[self indexPathsForSelectedCells] animated:YES];
         
         CGPoint touchLocation = [tapGestureRecognizer locationInView:self];
         
@@ -1373,6 +1374,10 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
             if(CGRectContainsPoint([aCell frame], 
                                    touchLocation))
             {
+                if([self allowsMultipleSelections] == NO)
+                    [self deselectCellsAtIndexPaths:[self indexPathsForSelectedCells] animated:YES];
+
+                
                 if(_gridViewDelegateRespondsTo.willSelectCell)
                     [[self delegate] gridView:self willSelectCellAtIndexPath:[aCell __indexPath]];
 
