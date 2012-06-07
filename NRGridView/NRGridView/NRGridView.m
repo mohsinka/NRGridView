@@ -644,12 +644,9 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     NRGridViewSectionLayout *sectionLayout = [self __sectionLayoutAtIndex:section];
     CGRect sectionHeaderFrame =  [sectionLayout headerFrame];
     
-    BOOL hasTranslucentNavigationBar = ([[self dataSource] isKindOfClass:[UIViewController class]] 
-                                        && [[(UIViewController*)[self dataSource] parentViewController] isKindOfClass:[UINavigationController class]]
-                                        && [[(UINavigationController*)[(UIViewController*)[self dataSource] parentViewController] navigationBar] isTranslucent]);
     CGPoint headerOffset = CGPointZero;
     
-    if(hasTranslucentNavigationBar)
+    if(_gridViewDataSourceRespondsTo.hasTranslucentNavigationBar)
         headerOffset.y = CGRectGetHeight([[(UINavigationController*)[(UIViewController*)[self dataSource] parentViewController] navigationBar] frame]);
     
     if(layoutStyle == NRGridViewLayoutStyleVertical){
@@ -1107,12 +1104,18 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
         [_sectionLayouts addObject:sectionLayout];
         [sectionLayout release];
     }
- 
+    
     [self setContentSize:contentSize];
 }
 
 - (void)reloadData
 {
+    _gridViewDataSourceRespondsTo.hasTranslucentNavigationBar = ([[self dataSource] isKindOfClass:[UIViewController class]] 
+                                                                 && [[(UIViewController*)[self dataSource] parentViewController] isKindOfClass:[UINavigationController class]]
+                                                                 && [[(UINavigationController*)[(UIViewController*)[self dataSource] parentViewController] navigationBar] isTranslucent]);
+    
+
+    
     [self __reloadContentSize];
     
     [self __throwCellsInReusableQueue:_visibleCellsSet];
