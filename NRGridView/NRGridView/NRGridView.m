@@ -398,7 +398,10 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
         _gridViewDataSourceRespondsTo.heightForFooter = [dataSource respondsToSelector:@selector(gridView:heightForFooterInSection:)];
         _gridViewDataSourceRespondsTo.widthForFooter = [dataSource respondsToSelector:@selector(gridView:widthForFooterInSection:)];
 
-        
+        _gridViewDataSourceRespondsTo.hasTranslucentNavigationBar = ([[self dataSource] isKindOfClass:[UIViewController class]] 
+                                                                     && [[(UIViewController*)[self dataSource] parentViewController] isKindOfClass:[UINavigationController class]]
+                                                                     && [[(UINavigationController*)[(UIViewController*)[self dataSource] parentViewController] navigationBar] isTranslucent]);
+
         [self didChangeValueForKey:@"dataSource"];
     }
 }
