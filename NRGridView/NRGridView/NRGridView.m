@@ -193,28 +193,36 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 - (void)__reloadContentSize;
 
 - (NSInteger)__numberOfCellsPerColumnUsingSize:(CGSize)cellSize
-                                   layoutStyle:(NRGridViewLayoutStyle)layoutStyle;
+                                   layoutStyle:(NRGridViewLayoutStyle)layoutStyle
+                                         frame:(CGRect)frame;
 - (NSInteger)__numberOfCellsPerLineUsingSize:(CGSize)cellSize
-                                   layoutStyle:(NRGridViewLayoutStyle)layoutStyle;
+                                   layoutStyle:(NRGridViewLayoutStyle)layoutStyle
+                                       frame:(CGRect)frame;
 
 - (BOOL)__hasHeaderInSection:(NSInteger)sectionIndex;
 - (CGFloat)__widthForHeaderAtSectionIndex:(NSInteger)sectionIndex
-                         usingLayoutStyle:(NRGridViewLayoutStyle)layoutStyle;
+                         usingLayoutStyle:(NRGridViewLayoutStyle)layoutStyle
+                                    frame:(CGRect)frame;
 - (CGFloat)__heightForHeaderAtSectionIndex:(NSInteger)sectionIndex
-                          usingLayoutStyle:(NRGridViewLayoutStyle)layoutStyle;
+                          usingLayoutStyle:(NRGridViewLayoutStyle)layoutStyle
+                                     frame:(CGRect)frame;
 
 - (CGFloat)__widthForContentInSection:(NSInteger)section
                           forCellSize:(CGSize)cellSize
-                     usingLayoutStyle:(NRGridViewLayoutStyle)layoutStyle;
+                     usingLayoutStyle:(NRGridViewLayoutStyle)layoutStyle
+                                frame:(CGRect)frame;
 - (CGFloat)__heightForContentInSection:(NSInteger)section
                            forCellSize:(CGSize)cellSize
-                      usingLayoutStyle:(NRGridViewLayoutStyle)layoutStyle;
+                      usingLayoutStyle:(NRGridViewLayoutStyle)layoutStyle
+                                 frame:(CGRect)frame;
 
 - (BOOL)__hasFooterInSection:(NSInteger)sectionIndex;
 - (CGFloat)__widthForFooterAtSectionIndex:(NSInteger)sectionIndex
-                         usingLayoutStyle:(NRGridViewLayoutStyle)layoutStyle;
+                         usingLayoutStyle:(NRGridViewLayoutStyle)layoutStyle
+                                    frame:(CGRect)frame;
 - (CGFloat)__heightForFooterAtSectionIndex:(NSInteger)sectionIndex
-                          usingLayoutStyle:(NRGridViewLayoutStyle)layoutStyle;
+                          usingLayoutStyle:(NRGridViewLayoutStyle)layoutStyle
+                                     frame:(CGRect)frame;
 
 - (NSArray*)__sectionsInRect:(CGRect)rect;
 - (NRGridViewSectionLayout*)__sectionLayoutAtIndex:(NSInteger)section;
@@ -245,6 +253,9 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 @end
 
 @implementation NRGridView
+{
+    BOOL __needsToReloadContentSize;
+}
 @synthesize tapGestureRecognizer = _tapGestureRecognizer;
 @synthesize longPressGestureRecognizer = _longPressGestureRecognizer;
 
@@ -266,6 +277,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     _visibleCellsSet = [[NSMutableSet alloc] init];
     _reusableCellsSet = [[NSMutableSet alloc] init];
     
+    [self setAutoresizesSubviews:NO];
     [self setBackgroundColor:[UIColor whiteColor]];
     [self setAlwaysBounceVertical:YES];
     [self setLayoutStyle:NRGridViewLayoutStyleVertical];
@@ -320,6 +332,20 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     return self;
 }
 
+- (void)willMoveToSuperview:(UIView *)newSuperview
+{
+    [super willMoveToSuperview:newSuperview];
+    if(newSuperview)
+        [self reloadData];
+}
+
+- (void)willMoveToWindow:(UIWindow *)newWindow
+{
+    [super willMoveToWindow:newWindow];
+    if(newWindow)
+        [self reloadData];
+}
+
 #pragma mark - Getters
 
 - (NSArray*)visibleCells
@@ -358,13 +384,16 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 #pragma mark - Setters
 
-
 - (void)setFrame:(CGRect)frame
 {
+    if(CGSizeEqualToSize(frame.size, [self frame].size) == NO)
+    {
+        [self __reloadContentSizeUsingFrame:frame];
+    }
+    
     [super setFrame:frame];
-    [self __reloadContentSize];
-    [self __layoutCellsWithLayoutStyle:[self layoutStyle] alreadyVisibleCellsIndexPaths:[self indexPathsForVisibleCells]];
 }
+
 
 - (void)setDelegate:(id<NRGridViewDelegate>)delegate
 {
@@ -464,21 +493,23 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 - (NSInteger)__numberOfCellsPerColumnUsingSize:(CGSize)cellSize
                                    layoutStyle:(NRGridViewLayoutStyle)layoutStyle
+                                         frame:(CGRect)frame
 {
-    if(CGRectIsEmpty([self bounds]))
+    if(CGRectIsEmpty(frame))
         return 1;
     return (layoutStyle == NRGridViewLayoutStyleHorizontal
-            ? floor((CGRectGetHeight([self bounds]) - [self contentInset].top - [self contentInset].bottom)/cellSize.height)
+            ? floor((CGRectGetHeight(frame) - [self contentInset].top - [self contentInset].bottom)/cellSize.height)
             : NSIntegerMax);
 }
 
 - (NSInteger)__numberOfCellsPerLineUsingSize:(CGSize)cellSize
                                  layoutStyle:(NRGridViewLayoutStyle)layoutStyle
+                                       frame:(CGRect)frame
 {
-    if(CGRectIsEmpty([self bounds]))
+    if(CGRectIsEmpty(frame))
        return 1;
     return (layoutStyle == NRGridViewLayoutStyleVertical
-            ? floor((CGRectGetWidth([self bounds]) - [self contentInset].left - [self contentInset].right)/cellSize.width)
+            ? floor((CGRectGetWidth(frame) - [self contentInset].left - [self contentInset].right)/cellSize.width)
             : NSIntegerMax);
 }
 
@@ -495,6 +526,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 - (CGFloat)__widthForHeaderAtSectionIndex:(NSInteger)sectionIndex
                          usingLayoutStyle:(NRGridViewLayoutStyle)layoutStyle
+                                    frame:(CGRect)frame
 {
     if([self __hasHeaderInSection:sectionIndex] == NO)
         return 0.;
@@ -503,7 +535,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     // Otherwise, the headerWidth is set to the width of the grid view
     CGFloat headerWidth = (layoutStyle == NRGridViewLayoutStyleHorizontal 
                            ? _kNRGridViewDefaultHeaderWidth
-                           : CGRectGetWidth([self bounds]));
+                           : CGRectGetWidth(frame));
     
     if([self layoutStyle] == NRGridViewLayoutStyleHorizontal
        && _gridViewDataSourceRespondsTo.widthForHeader)
@@ -515,6 +547,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 - (CGFloat)__heightForHeaderAtSectionIndex:(NSInteger)sectionIndex
                           usingLayoutStyle:(NRGridViewLayoutStyle)layoutStyle
+                                     frame:(CGRect)frame
 {
     if([self __hasHeaderInSection:sectionIndex] == NO)
         return 0.;
@@ -523,7 +556,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     // Otherwise, the headerHeight is set to the height of the grid view
     CGFloat headerHeight = (layoutStyle == NRGridViewLayoutStyleVertical 
                             ? _kNRGridViewDefaultHeaderHeight
-                            : CGRectGetHeight([self bounds]));
+                            : CGRectGetHeight(frame));
     
     if([self layoutStyle] == NRGridViewLayoutStyleVertical
        && _gridViewDataSourceRespondsTo.heightForHeader)
@@ -538,24 +571,28 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 - (CGFloat)__widthForContentInSection:(NSInteger)section
                           forCellSize:(CGSize)cellSize
                      usingLayoutStyle:(NRGridViewLayoutStyle)layoutStyle
+                                frame:(CGRect)frame
 {
     return (layoutStyle == NRGridViewLayoutStyleHorizontal
             ? ceil((CGFloat)[[self dataSource] gridView:self 
                                  numberOfItemsInSection:section] / (CGFloat)[self __numberOfCellsPerColumnUsingSize:cellSize 
-                                                                                                        layoutStyle:layoutStyle]) * cellSize.width
-            : CGRectGetWidth([self bounds]));
+                                                                                                        layoutStyle:layoutStyle
+                                                                                                              frame:frame]) * cellSize.width
+            : CGRectGetWidth(frame));
 }
 
 
 - (CGFloat)__heightForContentInSection:(NSInteger)section
                            forCellSize:(CGSize)cellSize
                       usingLayoutStyle:(NRGridViewLayoutStyle)layoutStyle
+                                 frame:(CGRect)frame
 {
     return (layoutStyle == NRGridViewLayoutStyleVertical
             ? ceil((CGFloat)[[self dataSource] gridView:self 
                                  numberOfItemsInSection:section] / (CGFloat)[self __numberOfCellsPerLineUsingSize:cellSize 
-                                                                                                      layoutStyle:layoutStyle]) * cellSize.height 
-            : CGRectGetHeight([self bounds]));
+                                                                                                      layoutStyle:layoutStyle
+                                                                                                            frame:frame]) * cellSize.height 
+            : CGRectGetHeight(frame));
 }
 
 
@@ -569,6 +606,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 - (CGFloat)__widthForFooterAtSectionIndex:(NSInteger)sectionIndex
                          usingLayoutStyle:(NRGridViewLayoutStyle)layoutStyle
+                                    frame:(CGRect)frame
 {
     if([self __hasFooterInSection:sectionIndex] == NO)
         return 0.;
@@ -577,7 +615,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     // Otherwise, the headerWidth is set to the width of the grid view
     CGFloat footerWidth = (layoutStyle == NRGridViewLayoutStyleHorizontal 
                            ? _kNRGridViewDefaultHeaderWidth
-                           : CGRectGetWidth([self bounds]));
+                           : CGRectGetWidth(frame));
     
     if([self layoutStyle] == NRGridViewLayoutStyleHorizontal
        && _gridViewDataSourceRespondsTo.widthForFooter)
@@ -589,6 +627,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 - (CGFloat)__heightForFooterAtSectionIndex:(NSInteger)sectionIndex
                           usingLayoutStyle:(NRGridViewLayoutStyle)layoutStyle
+                                     frame:(CGRect)frame
 {
     if([self __hasFooterInSection:sectionIndex] == NO)
         return 0.;
@@ -597,7 +636,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     // Otherwise, the headerHeight is set to the height of the grid view
     CGFloat footerHeight = (layoutStyle == NRGridViewLayoutStyleVertical 
                             ? _kNRGridViewDefaultHeaderHeight
-                            : CGRectGetHeight([self bounds]));
+                            : CGRectGetHeight(frame));
     
     if([self layoutStyle] == NRGridViewLayoutStyleVertical
        && _gridViewDataSourceRespondsTo.heightForFooter)
@@ -789,7 +828,8 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     
     if(layoutStyle == NRGridViewLayoutStyleVertical){
         NSInteger numberOfCellsPerLine = [self __numberOfCellsPerLineUsingSize:[self cellSize]
-                                                                   layoutStyle:layoutStyle];
+                                                                   layoutStyle:layoutStyle
+                                                                         frame:[self bounds]];
         
         if(numberOfCellsPerLine > 0)
         {
@@ -805,7 +845,8 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     }else if(layoutStyle == NRGridViewLayoutStyleHorizontal)
     {
         NSInteger numberOfCellsPerColumn = [self __numberOfCellsPerColumnUsingSize:[self cellSize]
-                                                                       layoutStyle:layoutStyle];
+                                                                       layoutStyle:layoutStyle
+                                                                             frame:[self bounds]];
         
         if(numberOfCellsPerColumn > 0)
         {
@@ -827,7 +868,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 - (void)__throwCellsInReusableQueue:(NSSet*)cellsSet
 {
     [cellsSet makeObjectsPerformSelector:@selector(__setIndexPath:) withObject:nil];
-    [cellsSet makeObjectsPerformSelector:@selector(removeFromSuperview)];
+   // [cellsSet makeObjectsPerformSelector:@selector(removeFromSuperview)];
 
     [_reusableCellsSet unionSet:cellsSet];
     [_visibleCellsSet minusSet:cellsSet];
@@ -835,7 +876,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 - (void)__throwCellInReusableQueue:(NRGridViewCell*)cell
 {
     [cell __setIndexPath:nil];
-    [cell removeFromSuperview];
+    //[cell removeFromSuperview];
     [_reusableCellsSet addObject:cell];
     [_visibleCellsSet removeObject:cell];
 }
@@ -1030,7 +1071,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 #pragma mark - Reloading Content
 
-- (void)__reloadContentSize
+- (void)__reloadContentSizeUsingFrame:(CGRect)frame
 {        
     [_sectionLayouts release], _sectionLayouts=nil;
     _sectionLayouts = [[NSMutableArray alloc] init];
@@ -1052,19 +1093,24 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
         
         
         CGSize sectionHeaderSize = CGSizeMake([self __widthForHeaderAtSectionIndex:sectionIndex 
-                                                                  usingLayoutStyle:[self layoutStyle]], 
+                                                                  usingLayoutStyle:[self layoutStyle]
+                                                                             frame:frame], 
                                               [self __heightForHeaderAtSectionIndex:sectionIndex
-                                                                   usingLayoutStyle:[self layoutStyle]]);
+                                                                   usingLayoutStyle:[self layoutStyle]
+                                                                              frame:frame]);
         CGSize sectionFooterSize = CGSizeMake([self __widthForFooterAtSectionIndex:sectionIndex 
-                                                                  usingLayoutStyle:[self layoutStyle]], 
+                                                                  usingLayoutStyle:[self layoutStyle]
+                                                                             frame:frame], 
                                               [self __heightForFooterAtSectionIndex:sectionIndex
-                                                                   usingLayoutStyle:[self layoutStyle]]);
+                                                                   usingLayoutStyle:[self layoutStyle]
+                                                                              frame:frame]);
         
         if([self layoutStyle] == NRGridViewLayoutStyleVertical)
         {
             CGFloat contentHeightInSection = [self __heightForContentInSection:sectionIndex 
                                                                    forCellSize:[self cellSize] 
-                                                              usingLayoutStyle:[self layoutStyle]];
+                                                              usingLayoutStyle:[self layoutStyle]
+                                                                         frame:frame];
                         
             [sectionLayout setHeaderFrame:CGRectMake(0, 
                                                      contentSize.height, 
@@ -1072,7 +1118,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
                                                      sectionHeaderSize.height)];
             [sectionLayout setContentFrame:CGRectMake(0, 
                                                       CGRectGetMaxY([sectionLayout headerFrame]), 
-                                                      CGRectGetWidth([self bounds]), 
+                                                      CGRectGetWidth(frame), 
                                                       contentHeightInSection)];
             [sectionLayout setFooterFrame:CGRectMake(0, 
                                                      CGRectGetMaxY([sectionLayout contentFrame]), 
@@ -1086,7 +1132,8 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
         {
             CGFloat contentWidthInSection = [self __widthForContentInSection:sectionIndex 
                                                                  forCellSize:[self cellSize] 
-                                                            usingLayoutStyle:[self layoutStyle]];
+                                                            usingLayoutStyle:[self layoutStyle]
+                                                                       frame:frame];
             
             [sectionLayout setHeaderFrame:CGRectMake(contentSize.width, 
                                                      0, 
@@ -1095,7 +1142,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
             [sectionLayout setContentFrame:CGRectMake(CGRectGetMaxX([sectionLayout headerFrame]), 
                                                       0, 
                                                       contentWidthInSection, 
-                                                      CGRectGetHeight([self bounds]))];
+                                                      CGRectGetHeight(frame))];
             [sectionLayout setFooterFrame:CGRectMake(CGRectGetMaxX([sectionLayout contentFrame]), 
                                                      0, 
                                                      sectionFooterSize.width, 
@@ -1109,6 +1156,11 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     }
     
     [self setContentSize:contentSize];
+}
+
+- (void)__reloadContentSize
+{
+    [self __reloadContentSizeUsingFrame:[self frame]];
 }
 
 - (void)reloadData
@@ -1184,7 +1236,8 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
             
             if(layoutStyle == NRGridViewLayoutStyleVertical){
                 NSInteger numberOfCellsPerLine = [self __numberOfCellsPerLineUsingSize:[self cellSize]
-                                                                           layoutStyle:layoutStyle];
+                                                                           layoutStyle:layoutStyle
+                                                                                 frame:[self bounds]];
                 
                 NSInteger firstVisibleLineIndex = floor((CGRectGetMinY([self bounds])-CGRectGetMinY(sectionContentFrame)) / [self cellSize].height);
                 if(firstVisibleLineIndex<0)
@@ -1198,7 +1251,8 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
             }else if(layoutStyle == NRGridViewLayoutStyleHorizontal)
             {
                 NSInteger numberOfCellsPerColumn = [self __numberOfCellsPerColumnUsingSize:[self cellSize]
-                                                                               layoutStyle:layoutStyle];
+                                                                               layoutStyle:layoutStyle
+                                                                                     frame:[self bounds]];
                 
                 NSInteger firstVisibleColumnIndex = floor((CGRectGetMinX([self bounds])-CGRectGetMinX(sectionContentFrame)) / [self cellSize].width);
                 if(firstVisibleColumnIndex<0)
