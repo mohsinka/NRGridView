@@ -363,7 +363,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 {
     [super setFrame:frame];
     [self __reloadContentSize];
-    [self setNeedsLayout];
+    [self __layoutCellsWithLayoutStyle:[self layoutStyle] alreadyVisibleCellsIndexPaths:[self indexPathsForVisibleCells]];
 }
 
 - (void)setDelegate:(id<NRGridViewDelegate>)delegate
