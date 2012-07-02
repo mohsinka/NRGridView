@@ -386,7 +386,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 - (void)setFrame:(CGRect)frame
 {
-    if(CGSizeEqualToSize(frame.size, [self frame].size) == NO)
+    if(CGSizeEqualToSize(frame.size, [self frame].size) == NO && [self superview] != nil)
     {
         [self __reloadContentSizeUsingFrame:frame];
     }
@@ -868,7 +868,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 - (void)__throwCellsInReusableQueue:(NSSet*)cellsSet
 {
     [cellsSet makeObjectsPerformSelector:@selector(__setIndexPath:) withObject:nil];
-   // [cellsSet makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    [cellsSet makeObjectsPerformSelector:@selector(removeFromSuperview)];
 
     [_reusableCellsSet unionSet:cellsSet];
     [_visibleCellsSet minusSet:cellsSet];
@@ -876,7 +876,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 - (void)__throwCellInReusableQueue:(NRGridViewCell*)cell
 {
     [cell __setIndexPath:nil];
-    //[cell removeFromSuperview];
+    [cell setAlpha:0.];
     [_reusableCellsSet addObject:cell];
     [_visibleCellsSet removeObject:cell];
 }
@@ -894,6 +894,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
         if(indexOfIdentifier != NSNotFound)
         {
             dequeuedCell = [[dequeuableCells objectAtIndex:indexOfIdentifier] retain];
+            [dequeuedCell setAlpha:1.];
             [dequeuedCell prepareForReuse];
             [_reusableCellsSet removeObject:dequeuedCell];
         }
