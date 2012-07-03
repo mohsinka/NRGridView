@@ -110,6 +110,16 @@ static CGSize const kNRGridViewDefaultCellSize = {50, 70};
 @property (nonatomic, assign) IBOutlet id<NRGridViewDelegate> delegate;
 @property (nonatomic, assign) IBOutlet id<NRGridViewDataSource> dataSource;
 
+@property (nonatomic, retain) UIView    *gridHeaderView;
+@property (nonatomic, retain) UIView    *gridFooterView;
+
+/** When the NRGridView's header/footer view is set to be sticky, it will always be visible on screen. */
+@property (nonatomic, assign, getter = isGridHeaderViewSticky) BOOL stickyGridHeaderView;
+@property (nonatomic, assign, getter = isGridFooterViewSticky) BOOL stickyGridFooterView;
+
+- (void)setGridHeaderView:(UIView *)gridHeaderView sticky:(BOOL)sticky;
+- (void)setGridFooterView:(UIView *)gridFooterView sticky:(BOOL)sticky;
+
 /** Determines the size of every cells passed into the gridView. Default value is kNRGridViewDefaultCellSize */
 @property (nonatomic, assign) CGSize cellSize;
 

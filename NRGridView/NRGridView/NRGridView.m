@@ -266,6 +266,9 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 @synthesize cellSize = _cellSize;
 @synthesize longPressOptions = _longPressOptions;
 
+@synthesize gridHeaderView = _gridHeaderView, gridFooterView = _gridFooterView;
+@synthesize stickyGridHeaderView = _stickyGridHeaderView, stickyGridFooterView = _stickyGridFooterView;
+
 @dynamic visibleCells, indexPathsForVisibleCells;
 @dynamic selectedCellIndexPath/**Deprecated*/;
 @synthesize allowsMultipleSelections   = _allowsMultipleSelections;
@@ -489,6 +492,116 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 }
 
 
+- (void)setGridHeaderView:(UIView *)gridHeaderView sticky:(BOOL)sticky
+{
+    BOOL needsRelayout = NO;
+    
+    if(gridHeaderView != _gridHeaderView)
+    {
+        [self willChangeValueForKey:@"gridHeaderView"];
+
+        [_gridHeaderView removeObserver:self forKeyPath:@"frame"];
+        [_gridHeaderView removeFromSuperview];
+        [_gridHeaderView release];
+        _gridHeaderView = [gridHeaderView retain];
+        
+        if(gridHeaderView)
+        {
+            [self addSubview:gridHeaderView];
+            [gridHeaderView addObserver:self 
+                             forKeyPath:@"frame" 
+                                options:(NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld) 
+                                context:nil];
+            
+            if([self superview])
+            {
+                [self __reloadContentSize];
+                needsRelayout = YES;
+            }
+        }
+        
+        [self didChangeValueForKey:@"gridHeaderView"];
+    }
+    
+    if(sticky != _stickyGridHeaderView)
+    {
+        [self willChangeValueForKey:@"stickyGridHeaderView"];
+        _stickyGridHeaderView = sticky;
+        needsRelayout = ([self superview]!=nil);
+        [self didChangeValueForKey:@"stickyGridHeaderView"];
+    }
+    
+    if(needsRelayout)
+        [self setNeedsLayout];
+}
+
+- (void)setGridFooterView:(UIView *)gridFooterView sticky:(BOOL)sticky
+{
+    BOOL needsRelayout = NO;
+    
+    if(gridFooterView != _gridHeaderView)
+    {
+        [self willChangeValueForKey:@"gridFooterView"];
+        
+        [_gridFooterView removeObserver:self forKeyPath:@"frame"];
+        [_gridFooterView removeFromSuperview];
+        [_gridFooterView release];
+        _gridFooterView = [gridFooterView retain];
+        
+        if(gridFooterView)
+        {
+            [self addSubview:gridFooterView];
+            [gridFooterView addObserver:self 
+                             forKeyPath:@"frame" 
+                                options:(NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld) 
+                                context:nil];
+            
+            if([self superview])
+            {
+                [self __reloadContentSize];
+                needsRelayout = YES;
+            }
+        }
+        
+        [self didChangeValueForKey:@"gridFooterView"];
+    }
+    
+    if(sticky != _stickyGridFooterView)
+    {
+        [self willChangeValueForKey:@"stickyGridFooterView"];
+        _stickyGridFooterView = sticky;
+        needsRelayout = ([self superview]!=nil);
+        [self didChangeValueForKey:@"stickyGridFooterView"];
+    }
+    
+    if(needsRelayout)
+        [self setNeedsLayout];
+}
+
+- (void)setGridHeaderView:(UIView *)gridHeaderView
+{
+    [self setGridHeaderView:gridHeaderView 
+                     sticky:[self isGridHeaderViewSticky]];
+}
+
+- (void)setGridFooterView:(UIView *)gridFooterView
+{
+    [self setGridFooterView:gridFooterView 
+                     sticky:[self isGridFooterViewSticky]];
+}
+
+- (void)setStickyGridHeaderView:(BOOL)stickyGridHeaderView
+{
+    [self setGridHeaderView:[self gridHeaderView] 
+                     sticky:stickyGridHeaderView];
+}
+
+- (void)setStickyGridFooterView:(BOOL)stickyGridFooterView
+{
+    [self setGridFooterView:[self gridFooterView] 
+                     sticky:stickyGridFooterView];
+}
+
 #pragma mark - Private Methods
 
 - (NSInteger)__numberOfCellsPerColumnUsingSize:(CGSize)cellSize
@@ -689,7 +802,18 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     CGPoint headerOffset = CGPointZero;
     
     if(_gridViewDataSourceRespondsTo.hasTranslucentNavigationBar)
-        headerOffset.y = CGRectGetHeight([[(UINavigationController*)[(UIViewController*)[self dataSource] parentViewController] navigationBar] frame]);
+        headerOffset.y += CGRectGetHeight([[(UINavigationController*)[(UIViewController*)[self dataSource] parentViewController] navigationBar] frame]);
+    
+    
+    
+    if([self gridHeaderView] != nil && [self isGridHeaderViewSticky] ){
+        if(layoutStyle == NRGridViewLayoutStyleVertical){
+            headerOffset.y += CGRectGetHeight([[self gridHeaderView] frame]); 
+        }
+        else if(layoutStyle == NRGridViewLayoutStyleHorizontal){
+            headerOffset.x += CGRectGetWidth([[self gridHeaderView] frame]); 
+        }
+    }
     
     if(layoutStyle == NRGridViewLayoutStyleVertical){
         if(CGRectGetMinY(sectionHeaderFrame) < ([self contentOffset].y + headerOffset.y))
@@ -759,7 +883,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 - (CGRect)rectForFooterInSection:(NSInteger)section
 {
-    NRGridViewSectionLayout *sectionLayout = [self __sectionLayoutAtIndex:section];    
+    NRGridViewSectionLayout *sectionLayout = [self __sectionLayoutAtIndex:section];        
     return [sectionLayout footerFrame]; 
 }
 
@@ -1078,6 +1202,16 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     _sectionLayouts = [[NSMutableArray alloc] init];
     
     CGSize contentSize = CGSizeZero;
+    
+    if([self gridHeaderView] != nil){
+        if([self layoutStyle] == NRGridViewLayoutStyleVertical){
+            contentSize.height += CGRectGetHeight([[self gridHeaderView] frame]);
+        }
+        else if([self layoutStyle] == NRGridViewLayoutStyleHorizontal){
+            contentSize.width += CGRectGetWidth([[self gridHeaderView] frame]);
+        }
+    }    
+    
     NSInteger numberOfSections  = (_gridViewDataSourceRespondsTo.numberOfSections
                                    ? [[self dataSource] numberOfSectionsInGridView:self]
                                    : 1);
@@ -1155,6 +1289,16 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
         [_sectionLayouts addObject:sectionLayout];
         [sectionLayout release];
     }
+    
+    if([self gridFooterView] != nil){
+        if([self layoutStyle] == NRGridViewLayoutStyleVertical){
+            contentSize.height += CGRectGetHeight([[self gridFooterView] frame]);
+        }
+        else if([self layoutStyle] == NRGridViewLayoutStyleHorizontal){
+            contentSize.width += CGRectGetWidth([[self gridFooterView] frame]);
+        }
+    }
+
     
     [self setContentSize:contentSize];
 }
@@ -1314,6 +1458,70 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     if(CGRectIsEmpty([self bounds]))
         return;
     
+    /** Layout Grid Header View */
+    if([self gridHeaderView] != nil)
+    {
+        CGRect gridHeaderViewFrame = [[self gridHeaderView] frame];
+        CGPoint gridHeaderOrigin = CGPointZero;
+        
+        if([self isGridHeaderViewSticky]){
+            gridHeaderOrigin = CGPointMake(([self layoutStyle] == NRGridViewLayoutStyleHorizontal
+                                            ? [self contentOffset].x
+                                            : 0.),
+                                           ([self layoutStyle] == NRGridViewLayoutStyleVertical
+                                            ? [self contentOffset].y
+                                            : 0.));
+        }
+        
+        if([self layoutStyle] == NRGridViewLayoutStyleVertical){
+            gridHeaderViewFrame.size.width = CGRectGetWidth([self bounds]);
+        }
+        else if([self layoutStyle] == NRGridViewLayoutStyleHorizontal){
+            gridHeaderViewFrame.size.height = CGRectGetHeight([self bounds]);
+        }
+        
+        gridHeaderViewFrame.origin = gridHeaderOrigin;
+        [[self gridHeaderView] setFrame:gridHeaderViewFrame];
+        [self bringSubviewToFront:[self gridHeaderView]];
+    }
+    
+    /** Layout Grid Footer View */
+    if([self gridFooterView] != nil)
+    {
+        CGRect gridFooterViewFrame = [[self gridFooterView] frame];
+        CGPoint gridFooterOrigin = CGPointZero;
+        
+        if([self isGridFooterViewSticky]){
+            gridFooterOrigin = CGPointMake(([self layoutStyle] == NRGridViewLayoutStyleHorizontal
+                                            ? ([self contentOffset].x + CGRectGetWidth([self bounds]) - CGRectGetWidth(gridFooterViewFrame))
+                                            : 0.),
+                                           ([self layoutStyle] == NRGridViewLayoutStyleVertical
+                                            ? ([self contentOffset].y + CGRectGetHeight([self bounds]) - CGRectGetHeight(gridFooterViewFrame))
+                                            : 0.));
+        }
+        else {
+            gridFooterOrigin = CGPointMake(([self layoutStyle] == NRGridViewLayoutStyleHorizontal
+                                            ? ([self contentSize].width - CGRectGetWidth(gridFooterViewFrame))
+                                            : 0.),
+                                           ([self layoutStyle] == NRGridViewLayoutStyleVertical
+                                            ? ([self contentSize].height - CGRectGetHeight(gridFooterViewFrame))
+                                            : 0.));
+        }
+        
+        if([self layoutStyle] == NRGridViewLayoutStyleVertical){
+            gridFooterViewFrame.size.width = CGRectGetWidth([self bounds]);
+        }
+        else if([self layoutStyle] == NRGridViewLayoutStyleHorizontal){
+            gridFooterViewFrame.size.height = CGRectGetHeight([self bounds]);
+        }
+        
+        gridFooterViewFrame.origin = gridFooterOrigin;
+        [[self gridFooterView] setFrame:gridFooterViewFrame];
+        [self bringSubviewToFront:[self gridFooterView]];
+    }
+    
+    
+    /** Send non-visible cells to recycle bin */
     [_highlightedCell setHighlighted:NO animated:NO];
     [_highlightedCell release], _highlightedCell=nil;
 
@@ -1547,10 +1755,51 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 }
 
 
+#pragma mark - KVO
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if( (object == [self gridHeaderView] || object == [self gridFooterView])
+       && [keyPath isEqualToString:@"frame"] 
+       && [self superview] != nil)
+    {
+        NSValue *oldFrameValue, *newFrameValue;
+        oldFrameValue = [change objectForKey:NSKeyValueChangeOldKey];
+        newFrameValue = [change objectForKey:NSKeyValueChangeNewKey];
+        BOOL sizeHasChanged = YES;
+        
+        if(oldFrameValue != (id)[NSNull null] && newFrameValue != (id)[NSNull null]) // cast type id to avoid useless warnings. 
+        {
+            CGSize oldSize = [oldFrameValue CGRectValue].size;
+            CGSize newSize = [newFrameValue CGRectValue].size;
+            
+            if([self layoutStyle] == NRGridViewLayoutStyleVertical){
+                sizeHasChanged = (oldSize.height != newSize.height);
+            }
+            else if([self layoutStyle] == NRGridViewLayoutStyleHorizontal){
+                sizeHasChanged = (oldSize.width != newSize.width);
+            }
+        }
+        
+        if(sizeHasChanged)
+        {
+            [self __reloadContentSize];
+            [self setNeedsLayout];
+        }
+    }
+}
+
+
 #pragma mark - Memory
 
 - (void)dealloc
-{    
+{   
+    [_gridHeaderView removeObserver:self forKeyPath:@"frame"];
+    [_gridFooterView removeObserver:self forKeyPath:@"frame"];
+
+    [_gridHeaderView release];
+    [_gridFooterView release];
+    
     [_longPressuredCell release];
     [_longPressGestureRecognizer release];
     [_sectionLayouts release];
