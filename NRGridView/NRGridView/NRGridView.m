@@ -342,13 +342,6 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
         [self reloadData];
 }
 
-- (void)willMoveToWindow:(UIWindow *)newWindow
-{
-    [super willMoveToWindow:newWindow];
-    if(newWindow)
-        [self reloadData];
-}
-
 #pragma mark - Getters
 
 - (NSArray*)visibleCells
