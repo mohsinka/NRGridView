@@ -1739,7 +1739,8 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
 {
     if( (gestureRecognizer == _longPressGestureRecognizer || gestureRecognizer == _tapGestureRecognizer)
-       && ([[touch view] isKindOfClass:[UIControl class]] && [[touch view] isUserInteractionEnabled]))
+       && (([[touch view] isKindOfClass:[UIControl class]] && [[touch view] isUserInteractionEnabled])
+           || [touch view] == [self gridHeaderView] || [touch view] == [self gridFooterView]))
         return NO;
     else if(gestureRecognizer == _longPressGestureRecognizer)
         return _gridViewDelegateRespondsTo.didLongPressCell;
