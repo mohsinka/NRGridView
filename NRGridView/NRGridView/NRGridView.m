@@ -1298,7 +1298,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 - (void)__reloadContentSize
 {
-    [self __reloadContentSizeUsingFrame:[self frame]];
+    [self __reloadContentSizeUsingFrame:[self bounds]];
 }
 
 - (void)reloadData
