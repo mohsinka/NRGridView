@@ -42,7 +42,11 @@
 - (id)initWithFrame:(CGRect)frame{
     self = [super initWithFrame:frame];
     if(self)
+    {
         [self setBackgroundColor:[UIColor clearColor]];
+        [self setContentMode:UIViewContentModeRedraw];
+    }
+   
     return self;
 }
 - (void)drawRect:(CGRect)rect
