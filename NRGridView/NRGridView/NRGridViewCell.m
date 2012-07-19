@@ -43,7 +43,7 @@
     self = [super initWithFrame:frame];
     if(self)
     {
-        [self setBackgroundColor:[UIColor clearColor]];
+        [self setOpaque:NO];
         [self setContentMode:UIViewContentModeRedraw];
     }
    
@@ -165,7 +165,6 @@
     _contentView = [[UIView alloc] initWithFrame:CGRectZero];
     [_contentView setBackgroundColor:[UIColor clearColor]];
     [self addSubview:_contentView];
-    [self setSelectionBackgroundView:[[[NRGridViewCellSelectionBackgroundView alloc] init] autorelease]];
 }
 
 - (id)initWithFrame:(CGRect)frame
@@ -210,6 +209,25 @@
 - (BOOL)needsRelayout
 {
     return ([self superview] != nil);
+}
+
+- (UIView *)selectionBackgroundView
+{
+    if(_selectionBackgroundView == nil && ([self isSelected] || [self isHighlighted]))
+    {
+        _selectionBackgroundView = [[NRGridViewCellSelectionBackgroundView alloc] init];
+        
+        if([self backgroundView])
+            [self insertSubview:_selectionBackgroundView aboveSubview:[self backgroundView]];
+        else
+            [self insertSubview:_selectionBackgroundView atIndex:0];
+        
+        if([self needsRelayout])
+            [self setNeedsLayout];
+
+    }
+    
+    return [[_selectionBackgroundView retain] autorelease];
 }
 
 - (UIImageView*)imageView

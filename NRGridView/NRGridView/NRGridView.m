@@ -1362,84 +1362,82 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
         [sectionFooterView setFrame:[self rectForFooterInSection:sectionIndex]];
         if([sectionFooterView superview] == nil)
             [self addSubview:sectionFooterView];
-
         
-        // enumerate all cells visible cells for sectionIndex.
-        @autoreleasepool {
+        
+        
+        NSInteger numberOfCellsInSection = [[self dataSource] gridView:self 
+                                                numberOfItemsInSection:sectionIndex];
+        NSInteger firstVisibleCellIndex=0;
+        NSInteger cellIndexesRange=0;
+        
+        if(layoutStyle == NRGridViewLayoutStyleVertical){
+            NSInteger numberOfCellsPerLine = [self __numberOfCellsPerLineUsingSize:[self cellSize]
+                                                                       layoutStyle:layoutStyle
+                                                                             frame:[self bounds]];
             
-            NSInteger numberOfCellsInSection = [[self dataSource] gridView:self 
-                                                    numberOfItemsInSection:sectionIndex];
-            NSInteger firstVisibleCellIndex=0;
-            NSInteger cellIndexesRange=0;
+            NSInteger firstVisibleLineIndex = floor((CGRectGetMinY([self bounds])-CGRectGetMinY(sectionContentFrame)) / [self cellSize].height);
+            if(firstVisibleLineIndex<0)
+                firstVisibleLineIndex = 0;
             
-            if(layoutStyle == NRGridViewLayoutStyleVertical){
-                NSInteger numberOfCellsPerLine = [self __numberOfCellsPerLineUsingSize:[self cellSize]
+            NSInteger lastVisibleLineIndex = floor((CGRectGetMaxY([self bounds])-CGRectGetMinY(sectionContentFrame)) / [self cellSize].height);
+            
+            firstVisibleCellIndex = firstVisibleLineIndex * numberOfCellsPerLine;
+            cellIndexesRange = ((lastVisibleLineIndex+1) * numberOfCellsPerLine) - firstVisibleCellIndex;
+            
+        }else if(layoutStyle == NRGridViewLayoutStyleHorizontal)
+        {
+            NSInteger numberOfCellsPerColumn = [self __numberOfCellsPerColumnUsingSize:[self cellSize]
                                                                            layoutStyle:layoutStyle
                                                                                  frame:[self bounds]];
-                
-                NSInteger firstVisibleLineIndex = floor((CGRectGetMinY([self bounds])-CGRectGetMinY(sectionContentFrame)) / [self cellSize].height);
-                if(firstVisibleLineIndex<0)
-                    firstVisibleLineIndex = 0;
-                
-                NSInteger lastVisibleLineIndex = floor((CGRectGetMaxY([self bounds])-CGRectGetMinY(sectionContentFrame)) / [self cellSize].height);
-
-                firstVisibleCellIndex = firstVisibleLineIndex * numberOfCellsPerLine;
-                cellIndexesRange = ((lastVisibleLineIndex+1) * numberOfCellsPerLine) - firstVisibleCellIndex;
-                
-            }else if(layoutStyle == NRGridViewLayoutStyleHorizontal)
-            {
-                NSInteger numberOfCellsPerColumn = [self __numberOfCellsPerColumnUsingSize:[self cellSize]
-                                                                               layoutStyle:layoutStyle
-                                                                                     frame:[self bounds]];
-                
-                NSInteger firstVisibleColumnIndex = floor((CGRectGetMinX([self bounds])-CGRectGetMinX(sectionContentFrame)) / [self cellSize].width);
-                if(firstVisibleColumnIndex<0)
-                    firstVisibleColumnIndex = 0;
-                
-                NSInteger lastVisibleColumnIndex = floor((CGRectGetMaxX([self bounds])-CGRectGetMinX(sectionContentFrame)) / [self cellSize].width);
-                
-                firstVisibleCellIndex = firstVisibleColumnIndex * numberOfCellsPerColumn;
-                cellIndexesRange = ((lastVisibleColumnIndex+1) * numberOfCellsPerColumn) - firstVisibleCellIndex;
-            }
             
-            if(firstVisibleCellIndex + cellIndexesRange > numberOfCellsInSection)
-                cellIndexesRange = numberOfCellsInSection - firstVisibleCellIndex;
-            if(cellIndexesRange <0)
-                cellIndexesRange=0;            
+            NSInteger firstVisibleColumnIndex = floor((CGRectGetMinX([self bounds])-CGRectGetMinX(sectionContentFrame)) / [self cellSize].width);
+            if(firstVisibleColumnIndex<0)
+                firstVisibleColumnIndex = 0;
             
+            NSInteger lastVisibleColumnIndex = floor((CGRectGetMaxX([self bounds])-CGRectGetMinX(sectionContentFrame)) / [self cellSize].width);
             
-            NSMutableIndexSet *sectionVisibleContentIndexes = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(firstVisibleCellIndex, cellIndexesRange)];
-
-
-            [sectionVisibleContentIndexes enumerateIndexesUsingBlock:^(NSUInteger cellIndexInSection, BOOL *stop)
-             {
-                 NSIndexPath *cellIndexPath = [NSIndexPath indexPathForItemIndex:cellIndexInSection 
-                                                                       inSection:sectionIndex];    
-                 
-                 if([alreadyVisibleCellsIndexPaths containsObject:cellIndexPath] == NO)
-                 {
-                     // insert cell.
-                     NRGridViewCell *cell = [[self dataSource] gridView:self 
-                                                 cellForItemAtIndexPath:cellIndexPath];
-                     [cell __setIndexPath:cellIndexPath];
-                     [cell setFrame:[self __rectForCellAtIndexPath:cellIndexPath 
-                                                  usingLayoutStyle:layoutStyle]];                         
-                     [cell setSelected:[_selectedCellsIndexPaths containsObject:cellIndexPath]];
-                     
-                     if(_gridViewDelegateRespondsTo.willDisplayCell)
-                         [[self delegate] gridView:self 
-                                   willDisplayCell:cell 
-                                       atIndexPath:cellIndexPath];
-                     
-                     [self insertSubview:cell atIndex:0];
-                     [_visibleCellsSet addObject:cell];
-                     
-                 }
-             }];
-            
+            firstVisibleCellIndex = firstVisibleColumnIndex * numberOfCellsPerColumn;
+            cellIndexesRange = ((lastVisibleColumnIndex+1) * numberOfCellsPerColumn) - firstVisibleCellIndex;
         }
+        
+        if(firstVisibleCellIndex + cellIndexesRange > numberOfCellsInSection)
+            cellIndexesRange = numberOfCellsInSection - firstVisibleCellIndex;
+        if(cellIndexesRange <0)
+            cellIndexesRange=0;            
+        
+        
+        NSMutableIndexSet *sectionVisibleContentIndexes = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(firstVisibleCellIndex, cellIndexesRange)];
+        
+        
+        [sectionVisibleContentIndexes enumerateIndexesUsingBlock:^(NSUInteger cellIndexInSection, BOOL *stop)
+         {
+             NSIndexPath *cellIndexPath = [NSIndexPath indexPathForItemIndex:cellIndexInSection 
+                                                                   inSection:sectionIndex];    
+             
+             if([alreadyVisibleCellsIndexPaths containsObject:cellIndexPath] == NO)
+             {
+                 // insert cell.
+                 NRGridViewCell *cell = [[self dataSource] gridView:self 
+                                             cellForItemAtIndexPath:cellIndexPath];
+                 [cell __setIndexPath:cellIndexPath];
+                 [cell setFrame:[self __rectForCellAtIndexPath:cellIndexPath 
+                                              usingLayoutStyle:layoutStyle]];                         
+                 [cell setSelected:[_selectedCellsIndexPaths containsObject:cellIndexPath]];
+                 
+                 if(_gridViewDelegateRespondsTo.willDisplayCell)
+                     [[self delegate] gridView:self 
+                               willDisplayCell:cell 
+                                   atIndexPath:cellIndexPath];
+                 
+                 [self insertSubview:cell atIndex:0];
+                 [_visibleCellsSet addObject:cell];
+                 
+             }
+         }];
+        
+        
     }
-     
+    
     [self bringSubviewToFront:verticalScrollIndicator];
     [self bringSubviewToFront:horizontalScrollIndicator];
 }   

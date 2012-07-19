@@ -366,7 +366,7 @@
 					armv7,
 					armv6,
 				);
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Pierre-Henry Milhem (XDR7N5V3ED)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Pierre-Henry Milhem (GDGMEJ7BC6)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../NRGridView/Products\"",
@@ -381,7 +381,7 @@
 					"\"$(SRCROOT)/../NRGridView/build/NRGridView\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "3336BBFA-2305-46D4-A9B5-C29C8612D08C";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "B28B808A-FDA1-4143-BE75-E1B6E2F15427";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
