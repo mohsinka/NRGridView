@@ -959,7 +959,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
             NSInteger currentColumn = (NSInteger)(indexPath.itemIndex - numberOfCellsPerLine*currentLine);
             
             cellFrame.origin.y = CGRectGetMinY([sectionLayout contentFrame]) + floor([self cellSize].height * currentLine);
-            cellFrame.origin.x = floor([self cellSize].width * currentColumn) + floor(CGRectGetWidth([self bounds])/2. - lineWidth/2.);
+            cellFrame.origin.x = floor([self cellSize].width * currentColumn) + floor((CGRectGetWidth([self bounds]) - ([self contentInset].left + [self contentInset].right))/2. - lineWidth/2.);
         }
         
     }else if(layoutStyle == NRGridViewLayoutStyleHorizontal)
@@ -976,7 +976,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
             NSInteger currentLine = (NSInteger)(indexPath.itemIndex - numberOfCellsPerColumn*currentColumn);
             
             cellFrame.origin.x = CGRectGetMinX([sectionLayout contentFrame]) + floor([self cellSize].width * currentColumn);
-            cellFrame.origin.y = floor([self cellSize].height * currentLine) + floor(CGRectGetHeight([self bounds])/2. - columnHeight/2.);
+            cellFrame.origin.y = floor([self cellSize].height * currentLine) + floor((CGRectGetHeight([self bounds]) - ([self contentInset].top + [self contentInset].bottom))/2. - columnHeight/2.);
         }
         
     }
