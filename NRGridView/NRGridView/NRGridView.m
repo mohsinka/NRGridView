@@ -480,7 +480,10 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
         [self setAlwaysBounceHorizontal:(layoutStyle == NRGridViewLayoutStyleHorizontal)];
 
         if([self dataSource])
-            [self reloadData];
+        {
+            [self __reloadContentSize];
+            [self setNeedsLayout];
+        }
     }
 }
 
