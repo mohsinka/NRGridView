@@ -1469,10 +1469,10 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
         }
         
         if([self layoutStyle] == NRGridViewLayoutStyleVertical){
-            gridHeaderViewFrame.size.width = CGRectGetWidth([self bounds]);
+            gridHeaderViewFrame.size.width = CGRectGetWidth([self bounds]) - ([self contentInset].left + [self contentInset].right);
         }
         else if([self layoutStyle] == NRGridViewLayoutStyleHorizontal){
-            gridHeaderViewFrame.size.height = CGRectGetHeight([self bounds]);
+            gridHeaderViewFrame.size.height = CGRectGetHeight([self bounds]) - ([self contentInset].top + [self contentInset].bottom);
         }
         
         gridHeaderViewFrame.origin = gridHeaderOrigin;
@@ -1504,10 +1504,9 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
         }
         
         if([self layoutStyle] == NRGridViewLayoutStyleVertical){
-            gridFooterViewFrame.size.width = CGRectGetWidth([self bounds]);
-        }
+            gridFooterViewFrame.size.width = CGRectGetWidth([self bounds]) - ([self contentInset].left + [self contentInset].right);        }
         else if([self layoutStyle] == NRGridViewLayoutStyleHorizontal){
-            gridFooterViewFrame.size.height = CGRectGetHeight([self bounds]);
+            gridFooterViewFrame.size.height = CGRectGetHeight([self bounds]) - ([self contentInset].top + [self contentInset].bottom);
         }
         
         gridFooterViewFrame.origin = gridFooterOrigin;
