@@ -508,12 +508,12 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
                              forKeyPath:@"frame" 
                                 options:(NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld) 
                                 context:nil];
-            
-            if([self superview])
-            {
-                [self __reloadContentSize];
-                needsRelayout = YES;
-            }
+        }
+        
+        if([self superview])
+        {
+            [self __reloadContentSize];
+            needsRelayout = YES;
         }
         
         [self didChangeValueForKey:@"gridHeaderView"];
@@ -552,11 +552,12 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
                                 options:(NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld) 
                                 context:nil];
             
-            if([self superview])
-            {
-                [self __reloadContentSize];
-                needsRelayout = YES;
-            }
+        }
+        
+        if([self superview])
+        {
+            [self __reloadContentSize];
+            needsRelayout = YES;
         }
         
         [self didChangeValueForKey:@"gridFooterView"];
@@ -1695,7 +1696,9 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
     
-    if([touches count] == 1)
+    if([touches count] == 1
+       && [self gestureRecognizer:_tapGestureRecognizer
+               shouldReceiveTouch:[touches anyObject]])
     {
         UITouch* touch = [touches anyObject];
         CGPoint touchLocation = [touch locationInView:self];
