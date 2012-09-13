@@ -228,7 +228,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0450;
-				ORGANIZATIONNAME = "Novedia Regions";
+				ORGANIZATIONNAME = PixiApps;
 			};
 			buildConfigurationList = 17A4339014DC5395008D35D8 /* Build configuration list for PBXProject "NRGridViewSampleApp" */;
 			compatibilityVersion = "Xcode 3.2";
