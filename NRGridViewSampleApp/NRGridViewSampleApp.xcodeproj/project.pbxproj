@@ -227,7 +227,7 @@
 		17A4338D14DC5395008D35D8 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0430;
+				LastUpgradeCheck = 0450;
 				ORGANIZATIONNAME = "Novedia Regions";
 			};
 			buildConfigurationList = 17A4339014DC5395008D35D8 /* Build configuration list for PBXProject "NRGridViewSampleApp" */;
@@ -366,13 +366,14 @@
 					armv7,
 					armv6,
 				);
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Pierre-Henry Milhem (GDGMEJ7BC6)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Louka Desroziers (YTBLE37L84)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../NRGridView/Products\"",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "NRGridViewSampleApp/NRGridViewSampleApp-Prefix.pch";
+				GCC_THUMB_SUPPORT = NO;
 				INFOPLIST_FILE = "NRGridViewSampleApp/NRGridViewSampleApp-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				LIBRARY_SEARCH_PATHS = (
@@ -381,7 +382,7 @@
 					"\"$(SRCROOT)/../NRGridView/build/NRGridView\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "B28B808A-FDA1-4143-BE75-E1B6E2F15427";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "7E906BD2-BE78-4794-B67E-F2662BB09D40";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -399,6 +400,7 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "NRGridViewSampleApp/NRGridViewSampleApp-Prefix.pch";
+				GCC_THUMB_SUPPORT = NO;
 				INFOPLIST_FILE = "NRGridViewSampleApp/NRGridViewSampleApp-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				LIBRARY_SEARCH_PATHS = (
