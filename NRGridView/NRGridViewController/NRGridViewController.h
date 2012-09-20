@@ -39,4 +39,8 @@
 - (id)initWithGridLayoutStyle:(NRGridViewLayoutStyle)layoutStyle;
 @property (nonatomic, readonly) NRGridViewLayoutStyle gridLayoutStyle;
 @property (nonatomic, retain) NRGridView *gridView;
+
+/** A Boolean value indicating if the controller clears the selection when the grid appears.
+ * @discussion The default value of this property is YES. When YES, the grid view controller clears the grid current selection when it receives a viewWillAppear: message. Setting this property to NO preserves the selection. */
+@property (nonatomic, assign) BOOL clearsSelectionOnViewWillAppear;
 @end

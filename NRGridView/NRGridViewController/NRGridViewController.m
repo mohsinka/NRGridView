@@ -40,6 +40,7 @@
 @implementation NRGridViewController
 @synthesize gridLayoutStyle = _gridLayoutStyle;
 @synthesize gridView = _gridView;
+@synthesize clearsSelectionOnViewWillAppear = _clearsSelectionOnViewWillAppear;
 
 - (id)initWithGridLayoutStyle:(NRGridViewLayoutStyle)layoutStyle
 {
@@ -125,13 +126,12 @@
     return YES;
 }
 
-- (void)viewDidAppear:(BOOL)animated
+- (void)viewWillAppear:(BOOL)animated
 {
-    [super viewDidAppear:animated];
-    
-    if([[self gridView] allowsMultipleSelections] == NO)
-        [[self gridView] deselectCellAtIndexPath:[[self gridView] indexPathForSelectedCell] 
+    if([[self gridView] allowsMultipleSelections] == NO && [self clearsSelectionOnViewWillAppear])
+        [[self gridView] deselectCellAtIndexPath:[[self gridView] indexPathForSelectedCell]
                                         animated:animated];
+    [super viewDidAppear:animated];
 }
 
 #pragma mark - GridView DataSource
