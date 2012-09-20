@@ -42,11 +42,17 @@
 @synthesize gridView = _gridView;
 @synthesize clearsSelectionOnViewWillAppear = _clearsSelectionOnViewWillAppear;
 
+- (void)__commonInit{
+    _clearsSelectionOnViewWillAppear = YES;
+    _gridLayoutStyle = NRGridViewLayoutStyleVertical;
+}
+
 - (id)initWithGridLayoutStyle:(NRGridViewLayoutStyle)layoutStyle
 {
     self = [super initWithNibName:nil bundle:nil];
     if(self)
     {
+        [self __commonInit];
         _gridLayoutStyle = layoutStyle;
     }
     return self;
@@ -56,7 +62,17 @@
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        _gridLayoutStyle = NRGridViewLayoutStyleVertical;
+        [self __commonInit];
+    }
+    return self;
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+    self = [super initWithCoder:aDecoder];
+    if(self)
+    {
+        [self __commonInit];
     }
     return self;
 }
