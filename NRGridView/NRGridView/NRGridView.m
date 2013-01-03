@@ -34,6 +34,7 @@
  ***********************************************************************************/
 
 #import "NRGridView.h"
+#import "NRGridConstants.h"
 #import "ObjC/Runtime.h"
 
 @interface NRGridViewHeader : UIView
@@ -192,6 +193,11 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 - (void)__commonInit;
 - (void)__reloadContentSize;
 
+- (void)__reloadCellsAtIndexPaths:(NSArray *)indexPaths
+                      andSections:(NSIndexSet *)sections
+                withCellAnimation:(NRGridViewCellAnimation)cellAnimation;
+
+
 - (NSInteger)__numberOfCellsPerColumnUsingSize:(CGSize)cellSize
                                    layoutStyle:(NRGridViewLayoutStyle)layoutStyle
                                          frame:(CGRect)frame;
@@ -237,12 +243,16 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 
 - (CGRect)__rectForCellAtIndexPath:(NSIndexPath*)indexPath 
                   usingLayoutStyle:(NRGridViewLayoutStyle)layoutStyle;
+- (CGRect)__finalRectForRect:(CGRect)rect
+          usingCellAnimation:(NRGridViewCellAnimation)cellAnimation; // Automatically calculates the endFrame of the given rect using the given cellAnimation
 - (void)__throwCellsInReusableQueue:(NSSet*)cellsSet;
 - (void)__throwCellInReusableQueue:(NRGridViewCell*)cell;
 
 - (void)__layoutCellsWithLayoutStyle:(NRGridViewLayoutStyle)layoutStyle
        alreadyVisibleCellsIndexPaths:(NSArray*)alreadyVisibleCellsIndexPaths;
 
+- (void)__insertCell:(NRGridViewCell *)cell forIndexPath:(NSIndexPath *)indexPath;
+- (void)__insertCell:(NRGridViewCell *)cell forIndexPath:(NSIndexPath *)indexPath usingFrame:(CGRect)frame;
 
 @property (nonatomic, retain) UITapGestureRecognizer *tapGestureRecognizer;
 @property (nonatomic, retain) UILongPressGestureRecognizer *longPressGestureRecognizer;
@@ -366,6 +376,13 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
             }
     
     return [cell autorelease];
+}
+
+- (NSArray*)cellsAtIndexPaths:(NSArray*)indexPaths
+{
+    return [[self visibleCells] filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
+        return ([indexPaths containsObject:[(NRGridViewCell *)evaluatedObject __indexPath]]);
+    }]];
 }
 
 - (NSIndexPath*)indexPathForLongPressuredCell
@@ -985,6 +1002,30 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     return cellFrame;
 }
 
+- (CGRect)__finalRectForRect:(CGRect)rect
+          usingCellAnimation:(NRGridViewCellAnimation)cellAnimation
+{
+    CGRect finalRect = rect;
+    
+    switch (cellAnimation) {
+        case NRGridViewCellAnimationBottom:
+            finalRect.origin.y += CGRectGetHeight([self bounds]);
+            break;
+        case NRGridViewCellAnimationTop:
+            finalRect.origin.y -= CGRectGetHeight([self bounds]);
+            break;
+        case NRGridViewCellAnimationLeft:
+            finalRect.origin.x -= CGRectGetWidth([self bounds]);
+            break;
+        case NRGridViewCellAnimationRight:
+            finalRect.origin.x += CGRectGetWidth([self bounds]);
+            break;
+        default:
+            break;
+    }
+    
+    return finalRect;
+}
 
 - (void)__throwCellsInReusableQueue:(NSSet*)cellsSet
 {
@@ -997,7 +1038,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 - (void)__throwCellInReusableQueue:(NRGridViewCell*)cell
 {
     [cell __setIndexPath:nil];
-    [cell setAlpha:0.];
+    [cell removeFromSuperview];
     [_reusableCellsSet addObject:cell];
     [_visibleCellsSet removeObject:cell];
 }
@@ -1015,7 +1056,6 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
         if(indexOfIdentifier != NSNotFound)
         {
             dequeuedCell = [[dequeuableCells objectAtIndex:indexOfIdentifier] retain];
-            [dequeuedCell setAlpha:1.];
             [dequeuedCell prepareForReuse];
             [_reusableCellsSet removeObject:dequeuedCell];
         }
@@ -1323,6 +1363,162 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     [self setNeedsLayout];
 }
 
+#warning Reloading cells code may need some improvements due to the amount of for-in enumerations
+
+- (void)__reloadCellsAtIndexPaths:(NSArray *)indexPaths
+                      andSections:(NSIndexSet *)sections
+                withCellAnimation:(NRGridViewCellAnimation)cellAnimation
+{
+    if([indexPaths count] == 0)return;
+    
+    NRGridViewCellAnimation anim = (cellAnimation == NRGridViewCellAnimationAutomatic ? NRGridViewCellAnimationFade : cellAnimation);
+    
+    if(anim == NRGridViewCellAnimationNone)
+    {
+        [self __throwCellsInReusableQueue:[NSSet setWithArray:[self cellsAtIndexPaths:indexPaths]]];
+        for(NSIndexPath *idxPath in indexPaths)
+        {
+            NRGridViewCell *cell = [[self dataSource] gridView:self
+                                        cellForItemAtIndexPath:idxPath];
+            [self __insertCell:cell forIndexPath:idxPath];
+        }
+        
+        [sections enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+            NRGridViewSectionLayout *sectionLayout = [self __sectionLayoutAtIndex:idx];
+            UIView *sectionView = [sectionLayout headerView];
+            CGRect sectionViewFrame = [sectionView frame];
+            
+            if(sectionView)
+            {
+                [sectionView removeFromSuperview];
+                [sectionLayout setHeaderView:nil];
+                
+                sectionView = [self __headerForSection:idx]; // causes section to reload
+                [sectionView setFrame:sectionViewFrame];
+            }
+            
+        }];
+
+    }
+    else
+    {
+        void(^animationBlock)(BOOL reversed) = ^(BOOL reversed){
+            
+            for(NRGridViewCell *cell in [self cellsAtIndexPaths:indexPaths])
+            {
+                CGRect initialFrame = [self rectForItemAtIndexPath:[cell __indexPath]];
+                CGRect endFrame = (reversed ? initialFrame : [self __finalRectForRect:initialFrame usingCellAnimation:anim]);
+                CGFloat endAlpha = (reversed ? 1. : 0.);
+                
+                switch (anim) {
+                    case NRGridViewCellAnimationBottom:
+                    case NRGridViewCellAnimationLeft:
+                    case NRGridViewCellAnimationRight:
+                    case NRGridViewCellAnimationTop:
+                        [cell setFrame:endFrame];
+                        break;
+                    case NRGridViewCellAnimationFade:
+                        [cell setAlpha:endAlpha];
+                        break;
+                    default:break;
+                }
+            }
+            
+            [sections enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+                UIView *sectionView = [self __visibleHeaderForSection:idx];
+                
+                if(sectionView)
+                {
+                    CGRect initialFrame = [self rectForHeaderInSection:idx];
+                    CGRect endFrame = (reversed ? initialFrame : [self __finalRectForRect:initialFrame usingCellAnimation:anim]);
+                    CGFloat endAlpha = (reversed ? 1. : 0.);
+                    
+                    switch (anim) {
+                        case NRGridViewCellAnimationBottom:
+                        case NRGridViewCellAnimationLeft:
+                        case NRGridViewCellAnimationRight:
+                        case NRGridViewCellAnimationTop:
+                            [sectionView setFrame:endFrame];
+                            break;
+                        case NRGridViewCellAnimationFade:
+                            [sectionView setAlpha:endAlpha];
+                            break;
+                        default:break;
+                    }
+                }
+                
+            }];
+        };
+        
+        
+        void(^completionBlock)(BOOL finished) = ^(BOOL finished){
+            
+            if(finished)
+            {
+                // Reload the cells
+                [self __reloadCellsAtIndexPaths:indexPaths andSections:sections withCellAnimation:NRGridViewCellAnimationNone];
+                
+                // Reconfigure cells if as we reused them
+                animationBlock(NO);
+                
+                // Second part of the animation
+                [UIView animateWithDuration:_kNRGridDefaultAnimationDuration
+                                      delay:0.
+                                    options:(UIViewAnimationOptionLayoutSubviews|UIViewAnimationOptionCurveEaseIn)
+                                 animations:^{
+                                     animationBlock(YES);
+                                 }
+                                 completion:^(BOOL finished) {
+                                     // Animation completed
+                                     [self setNeedsLayout];
+                                 }];
+            }
+            
+        };
+        
+        // Trigger first part of the animation
+        [UIView animateWithDuration:_kNRGridDefaultAnimationDuration
+                              delay:0.
+                            options:(UIViewAnimationOptionLayoutSubviews|UIViewAnimationOptionCurveEaseIn)
+                         animations:^{
+                             animationBlock(NO);
+                         }
+                         completion:completionBlock];
+        
+    }
+}
+
+- (void)reloadCellsAtIndexPaths:(NSArray *)indexPaths withCellAnimation:(NRGridViewCellAnimation)cellAnimation
+{
+    [self __reloadCellsAtIndexPaths:indexPaths andSections:nil withCellAnimation:cellAnimation];
+}
+
+- (void)reloadSections:(NSIndexSet *)sections withCellAnimation:(NRGridViewCellAnimation)cellAnimation
+{
+    NSArray *visibleCellsIndexPaths = [self indexPathsForVisibleCells];
+    NSArray *visibleSections = [visibleCellsIndexPaths valueForKeyPath:@"@distinctUnionOfObjects.section"];
+    
+    NSMutableArray *indexPathsToReload = [[NSMutableArray alloc] init];
+    
+    [sections enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+        
+        if([visibleSections containsObject:[NSNumber numberWithUnsignedInteger:idx]])
+        {
+            NSPredicate *pred = [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
+                return ([(NSIndexPath *)evaluatedObject section] == idx);
+            }];
+            
+            [indexPathsToReload addObjectsFromArray:[visibleCellsIndexPaths filteredArrayUsingPredicate:pred]];
+        }
+        
+    }];
+    
+    [self __reloadCellsAtIndexPaths:[NSArray arrayWithArray:indexPathsToReload]
+                        andSections:sections
+                  withCellAnimation:cellAnimation];
+    [indexPathsToReload release];
+}
+
 #pragma mark - Layouting
 
 - (void)setContentOffset:(CGPoint)offset
@@ -1423,19 +1619,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
                  // insert cell.
                  NRGridViewCell *cell = [[self dataSource] gridView:self 
                                              cellForItemAtIndexPath:cellIndexPath];
-                 [cell __setIndexPath:cellIndexPath];
-                 [cell setFrame:[self __rectForCellAtIndexPath:cellIndexPath 
-                                              usingLayoutStyle:layoutStyle]];                         
-                 [cell setSelected:[_selectedCellsIndexPaths containsObject:cellIndexPath]];
-                 
-                 if(_gridViewDelegateRespondsTo.willDisplayCell)
-                     [[self delegate] gridView:self 
-                               willDisplayCell:cell 
-                                   atIndexPath:cellIndexPath];
-                 
-                 [self insertSubview:cell atIndex:0];
-                 [_visibleCellsSet addObject:cell];
-                 
+                 [self __insertCell:cell forIndexPath:cellIndexPath usingFrame:[self __rectForCellAtIndexPath:cellIndexPath usingLayoutStyle:layoutStyle]];
              }
          }];
         
@@ -1444,7 +1628,32 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     
     [self bringSubviewToFront:verticalScrollIndicator];
     [self bringSubviewToFront:horizontalScrollIndicator];
-}   
+}
+
+
+- (void)__insertCell:(NRGridViewCell *)cell forIndexPath:(NSIndexPath *)indexPath
+{
+    [self __insertCell:cell forIndexPath:indexPath usingFrame:[self __rectForCellAtIndexPath:indexPath
+                                                                            usingLayoutStyle:[self layoutStyle]]];
+}
+
+- (void)__insertCell:(NRGridViewCell *)cell forIndexPath:(NSIndexPath *)indexPath usingFrame:(CGRect)frame
+{
+    [cell __setIndexPath:indexPath];
+    
+    if(CGRectIsNull(frame) == NO)
+        [cell setFrame:frame];
+    
+    [cell setSelected:[_selectedCellsIndexPaths containsObject:indexPath]];
+  
+    if(_gridViewDelegateRespondsTo.willDisplayCell)
+        [[self delegate] gridView:self
+                  willDisplayCell:cell
+                      atIndexPath:indexPath];
+    
+    [self insertSubview:cell atIndex:0];
+    [_visibleCellsSet addObject:cell];
+}
 
 - (void)layoutSubviews
 {

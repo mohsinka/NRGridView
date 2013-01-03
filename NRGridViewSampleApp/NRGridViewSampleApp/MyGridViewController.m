@@ -10,6 +10,9 @@
 
 static BOOL const _kNRGridViewSampleCrazyScrollEnabled = NO; // For the lulz.
 @implementation MyGridViewController
+{
+    BOOL _firstSectionReloaded; // For reloading sections/cells demo
+}
 
 #pragma mark - Crazy Scroll LULZ
 
@@ -24,7 +27,7 @@ static BOOL const _kNRGridViewSampleCrazyScrollEnabled = NO; // For the lulz.
                                                                numberOfItemsInSection:randomSection];
     
     
-    [[self gridView] selectCellAtIndexPath:[NSIndexPath indexPathForItemIndex:randomItemIndex inSection:randomSection] 
+    [[self gridView] selectCellAtIndexPath:[NSIndexPath indexPathForItemIndex:randomItemIndex inSection:randomSection]
                                 autoScroll:YES 
                             scrollPosition:NRGridViewScrollPositionAtMiddle
                                   animated:YES];
@@ -48,6 +51,13 @@ static BOOL const _kNRGridViewSampleCrazyScrollEnabled = NO; // For the lulz.
                                                object:nil];
 }
 
+- (void)__reloadFirstSection:(id)sender
+{
+    _firstSectionReloaded = !_firstSectionReloaded;
+    [[self gridView] reloadSections:[NSIndexSet indexSetWithIndex:0]
+                  withCellAnimation:NRGridViewCellAnimationLeft];
+}
+
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
@@ -58,6 +68,17 @@ static BOOL const _kNRGridViewSampleCrazyScrollEnabled = NO; // For the lulz.
 {
     [super viewWillDisappear:animated];
     [self __endGeneratingCrazyScrolls];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    UIBarButtonItem *reloadSectionButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh
+                                                                                             target:self
+                                                                                             action:@selector(__reloadFirstSection:)];
+    [[self navigationItem] setRightBarButtonItem:reloadSectionButtonItem animated:animated];
+    [reloadSectionButtonItem release];
 }
 
 #pragma mark -
@@ -109,7 +130,7 @@ static BOOL const _kNRGridViewSampleCrazyScrollEnabled = NO; // For the lulz.
 
 - (NSString*)gridView:(NRGridView *)gridView titleForHeaderInSection:(NSInteger)section
 {
-    return [NSString stringWithFormat:@"Section %i", section];
+    return [NSString stringWithFormat:@"Section %i %@", section, (section == 0 && _firstSectionReloaded ? @"(Reloaded)" : @"")];
 }
 
 - (NSString*)gridView:(NRGridView *)gridView titleForFooterInSection:(NSInteger)section
@@ -134,8 +155,8 @@ static BOOL const _kNRGridViewSampleCrazyScrollEnabled = NO; // For the lulz.
 
     }
     
-    cell.imageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"%i.png", (indexPath.row%7)]];
-    cell.textLabel.text = [NSString stringWithFormat:@"Item %i", indexPath.itemIndex];
+    cell.imageView.image = (indexPath.section == 0 && _firstSectionReloaded ? nil : [UIImage imageNamed:[NSString stringWithFormat:@"%i.png", (indexPath.row%7)]]);
+    cell.textLabel.text = [NSString stringWithFormat:@"Item %i %@", indexPath.itemIndex, (indexPath.section == 0 && _firstSectionReloaded ? @"(Reloaded)" : @"")];
     cell.detailedTextLabel.text = @"Some details";
 
     return cell;

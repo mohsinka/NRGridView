@@ -71,6 +71,17 @@ typedef enum{
 } NRGridViewLongPressUnhighlightOptions;
 
 
+typedef enum {
+    NRGridViewCellAnimationFade,
+    NRGridViewCellAnimationRight,
+    NRGridViewCellAnimationLeft,
+    NRGridViewCellAnimationTop,
+    NRGridViewCellAnimationBottom,
+    NRGridViewCellAnimationNone,
+    NRGridViewCellAnimationAutomatic = 100
+} NRGridViewCellAnimation;
+
+
 static CGSize const kNRGridViewDefaultCellSize = {50, 70};
 
 @interface NRGridView : UIScrollView
@@ -126,10 +137,15 @@ static CGSize const kNRGridViewDefaultCellSize = {50, 70};
 @property (nonatomic, readonly) NSArray     *visibleCells;
 @property (nonatomic, readonly) NSArray     *indexPathsForVisibleCells;
 
+/** Reloading the GridView */
 - (void)reloadData;
+- (void)reloadCellsAtIndexPaths:(NSArray *)indexPaths withCellAnimation:(NRGridViewCellAnimation)cellAnimation;
+- (void)reloadSections:(NSIndexSet *)sections withCellAnimation:(NRGridViewCellAnimation)cellAnimation;
 
+/** Requesting cells */
 - (NRGridViewCell*)dequeueReusableCellWithIdentifier:(NSString*)identifier;
 - (NRGridViewCell*)cellAtIndexPath:(NSIndexPath*)indexPath; // returns nil if cell is not visible.
+- (NSArray*)cellsAtIndexPaths:(NSArray*)indexPaths;
 
 /** Handling (de)selection */
 @property (nonatomic, retain)       NSIndexPath *selectedCellIndexPath __attribute__ ((deprecated));
