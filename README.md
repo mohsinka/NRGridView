@@ -15,7 +15,7 @@ It also has a 'layoutStyle'. It means you can use it as a vertical gridView, or 
 ![image](https://github.com/ldesroziers/NRGridView/blob/master/NRGridViewSampleApp/Screenshots/Vertical-Landscape.png?raw=true)
 ![image](https://github.com/ldesroziers/NRGridView/blob/master/NRGridViewSampleApp/Screenshots/Horizontal-Landscape.png?raw=true)
 
-If you got any suggestions, or if you need more UITableView-like methods, do not hesitate to email me at l.desroziers@novediagroup.com
+If you got any suggestions, or if you need more UITableView-like methods, do not hesitate to email me via github
 
 ##Latest Changelog
 
@@ -40,8 +40,6 @@ If you got any suggestions, or if you need more UITableView-like methods, do not
 `- (NSArray*)visibleCellsAtIndexPaths:(NSArray*)indexPaths;`
 
 ##Comments
-
-This component has been developed for Novedia Regions, a french company which develops apps for mobile devices.
 
 Referencing this project in your AboutBox is appreciated.
 Please tell me if you use this class so we can cross-reference our projects.
