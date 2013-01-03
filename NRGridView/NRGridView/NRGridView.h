@@ -145,7 +145,7 @@ static CGSize const kNRGridViewDefaultCellSize = {50, 70};
 /** Requesting cells */
 - (NRGridViewCell*)dequeueReusableCellWithIdentifier:(NSString*)identifier;
 - (NRGridViewCell*)cellAtIndexPath:(NSIndexPath*)indexPath; // returns nil if cell is not visible.
-- (NSArray*)cellsAtIndexPaths:(NSArray*)indexPaths;
+- (NSArray*)visibleCellsAtIndexPaths:(NSArray*)indexPaths;
 
 /** Handling (de)selection */
 @property (nonatomic, retain)       NSIndexPath *selectedCellIndexPath __attribute__ ((deprecated));

@@ -378,7 +378,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     return [cell autorelease];
 }
 
-- (NSArray*)cellsAtIndexPaths:(NSArray*)indexPaths
+- (NSArray*)visibleCellsAtIndexPaths:(NSArray*)indexPaths
 {
     return [[self visibleCells] filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
         return ([indexPaths containsObject:[(NRGridViewCell *)evaluatedObject __indexPath]]);
@@ -1375,7 +1375,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     
     if(anim == NRGridViewCellAnimationNone)
     {
-        [self __throwCellsInReusableQueue:[NSSet setWithArray:[self cellsAtIndexPaths:indexPaths]]];
+        [self __throwCellsInReusableQueue:[NSSet setWithArray:[self visibleCellsAtIndexPaths:indexPaths]]];
         for(NSIndexPath *idxPath in indexPaths)
         {
             NRGridViewCell *cell = [[self dataSource] gridView:self
@@ -1404,7 +1404,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     {
         void(^animationBlock)(BOOL reversed) = ^(BOOL reversed){
             
-            for(NRGridViewCell *cell in [self cellsAtIndexPaths:indexPaths])
+            for(NRGridViewCell *cell in [self visibleCellsAtIndexPaths:indexPaths])
             {
                 CGRect initialFrame = [self rectForItemAtIndexPath:[cell __indexPath]];
                 CGRect endFrame = (reversed ? initialFrame : [self __finalRectForRect:initialFrame usingCellAnimation:anim]);
