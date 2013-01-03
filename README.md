@@ -19,9 +19,25 @@ If you got any suggestions, or if you need more UITableView-like methods, do not
 
 ##Latest Changelog
 
-####Improved
-- Reloading the gridView is now 2.5x faster on a 3GS (Using structs instead of -respondsToSelector: for both delegate & dataSource)
+####Added
 
+`- (void)reloadCellsAtIndexPaths:(NSArray *)indexPaths withCellAnimation:(NRGridViewCellAnimation)cellAnimation;`
+
+`- (void)reloadSections:(NSIndexSet *)sections withCellAnimation:(NRGridViewCellAnimation)cellAnimation;`
+
+`typedef enum{
+`
+
+`NRGridViewCellAnimationFade,`
+`NRGridViewCellAnimationRight,`
+`NRGridViewCellAnimationLeft,`
+`NRGridViewCellAnimationTop,`
+`NRGridViewCellAnimationBottom,`
+`NRGridViewCellAnimationNone,`
+`NRGridViewCellAnimationAutomatic,`
+`} NRGridViewCellAnimation;`
+
+`- (NSArray*)visibleCellsAtIndexPaths:(NSArray*)indexPaths;`
 
 ##Comments
 
