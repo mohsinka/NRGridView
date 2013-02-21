@@ -1645,13 +1645,14 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
         [cell setFrame:frame];
     
     [cell setSelected:[_selectedCellsIndexPaths containsObject:indexPath]];
-  
+
+    [self insertSubview:cell atIndex:0];
+
     if(_gridViewDelegateRespondsTo.willDisplayCell)
         [[self delegate] gridView:self
                   willDisplayCell:cell
                       atIndexPath:indexPath];
     
-    [self insertSubview:cell atIndex:0];
     [_visibleCellsSet addObject:cell];
 }
 
