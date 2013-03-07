@@ -1060,6 +1060,8 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
             [_reusableCellsSet removeObject:dequeuedCell];
         }
         
+        [dequeuedCell setAlpha:1.];
+        
         /** I have commented the follow shorter way to find out a reusable cell because predicates are OVERSLOW.
          *
         NSPredicate *dequeueablePredicate = [NSPredicate predicateWithFormat:@"reuseIdentifier isEqualToString: %@",identifier];
