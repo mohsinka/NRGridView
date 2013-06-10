@@ -337,10 +337,13 @@
         _selected = selected;
         
         void (^selectionBlock)() = ^{
-            // use Ivars directly to avoid instanciating them using getters... maybe you won't use textLabel or detailedTextLabel.. right?
-            [_textLabel setHighlighted:([self isHighlighted] || selected)];
-            [_detailedTextLabel setHighlighted:([self isHighlighted] || selected)];
 
+            for(UIView *subview in [[self contentView] subviews])
+            {
+                if([subview respondsToSelector:@selector(setHighlighted:)])
+                    [(id)subview setHighlighted:([self isHighlighted] || selected)];
+            }
+            
             [[self selectionBackgroundView] setAlpha:([self isHighlighted] || selected)];
         };
         
@@ -369,10 +372,13 @@
         _highlighted = highlighted;
         
         void (^highlightBlock)() = ^{
-            // use Ivars directly to avoid instanciating them using getters... maybe you won't use textLabel or detailedTextLabel.. right?
-            [_textLabel setHighlighted:(highlighted || [self isSelected])];
-            [_detailedTextLabel setHighlighted:(highlighted || [self isSelected])];
 
+            for(UIView *subview in [[self contentView] subviews])
+            {
+                if([subview respondsToSelector:@selector(setHighlighted:)])
+                    [(id)subview setHighlighted:(highlighted || [self isSelected])];
+            }
+            
             [[self selectionBackgroundView] setAlpha:(highlighted || [self isSelected])];
         };
         
