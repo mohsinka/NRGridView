@@ -99,6 +99,7 @@ static CGSize const kNRGridViewDefaultCellSize = {50, 70};
         unsigned int didSelectCell:1;  
         unsigned int didLongPressCell:1;  
         unsigned int didSelectHeader:1;  
+        unsigned int didSelectFooter:1;
     } _gridViewDelegateRespondsTo;
     
     struct {

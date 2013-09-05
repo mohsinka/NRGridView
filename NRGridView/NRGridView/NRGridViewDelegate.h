@@ -48,5 +48,6 @@
 
 
 - (void)gridView:(NRGridView*)gridView didSelectHeaderForSection:(NSInteger)section;
+- (void)gridView:(NRGridView*)gridView didSelectFooterForSection:(NSInteger)section;
 
 @end

@@ -418,6 +418,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
     _gridViewDelegateRespondsTo.didLongPressCell = [delegate respondsToSelector:@selector(gridView:didLongPressCellAtIndexPath:)];
     
     _gridViewDelegateRespondsTo.didSelectHeader = [delegate respondsToSelector:@selector(gridView:didSelectHeaderForSection:)];
+    _gridViewDelegateRespondsTo.didSelectFooter = [delegate respondsToSelector:@selector(gridView:didSelectFooterForSection:)];
 
 }
 
@@ -1852,6 +1853,19 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
                 }
             }
         }
+        
+        if(_gridViewDelegateRespondsTo.didSelectFooter){
+            for(NRGridViewSectionLayout* aSectionLayout in _sectionLayouts)
+            {
+                if([aSectionLayout footerView]
+                   && CGRectContainsPoint([[aSectionLayout footerView] frame], touchLocation))
+                {
+                    [[self delegate] gridView:self didSelectFooterForSection:[aSectionLayout section]];
+                    return;
+                }
+            }
+        }
+
         
         
         for(NRGridViewCell *aCell in _visibleCellsSet)
