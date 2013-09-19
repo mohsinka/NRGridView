@@ -35,109 +35,6 @@
 #import "NRGridViewCell.h"
 #import "NRGridConstants.h"
 
-@interface NRGridViewCellSelectionBackgroundView : UIView
-@end
-@implementation NRGridViewCellSelectionBackgroundView
-
-- (id)initWithFrame:(CGRect)frame{
-    self = [super initWithFrame:frame];
-    if(self)
-    {
-        [self setOpaque:NO];
-        [self setContentMode:UIViewContentModeRedraw];
-    }
-   
-    return self;
-}
-- (void)drawRect:(CGRect)rect
-{    
-    CGContextRef ctx = UIGraphicsGetCurrentContext();
-    CGFloat cornerRadius = 5.;
-    UIBezierPath *roundedPath = [UIBezierPath bezierPathWithRoundedRect:[self bounds] 
-                                                           cornerRadius:cornerRadius];
-    
-    CGContextSaveGState(ctx);
-    CGContextAddPath(ctx, [roundedPath CGPath]);
-    CGContextClip(ctx);
-
-    CGColorSpaceRef spaceRef = CGColorSpaceCreateDeviceRGB();
-
-    CGFloat locations[2] = {0.0, 1.0};
-    CGColorRef top, bottom;
-    top = [[UIColor colorWithRed:108./255. green:178./255. blue:226./255. alpha:1.] CGColor];
-    bottom = [[UIColor colorWithRed:59./255. green:136./255. blue:206./255. alpha:1.] CGColor];
-    
-    CGFloat components[8] = {CGColorGetComponents(top)[0],CGColorGetComponents(top)[1],CGColorGetComponents(top)[2],CGColorGetComponents(top)[3] 
-        ,CGColorGetComponents(bottom)[0],CGColorGetComponents(bottom)[1],CGColorGetComponents(bottom)[2],CGColorGetComponents(bottom)[3]};
-    
-    CGGradientRef gradient = CGGradientCreateWithColorComponents(spaceRef, components, locations, (size_t)2);
-    CGContextDrawLinearGradient(ctx, gradient, [self bounds].origin, CGPointMake(CGRectGetMinX([self bounds]), CGRectGetMaxY([self bounds])), (CGGradientDrawingOptions)NULL);
-    
-    CGGradientRelease(gradient);
-    CGColorSpaceRelease(spaceRef);
-    
-    CGContextRestoreGState(ctx);
-
-    CGAffineTransform translation = CGAffineTransformMakeTranslation(0, 1);
-    CGPathRef translatedPath = CGPathCreateCopyByTransformingPath([roundedPath CGPath], &translation);
-
-    CGContextSaveGState(ctx);
-    CGContextBeginTransparencyLayer(ctx, NULL);
-    
-    CGContextAddPath(ctx, [roundedPath CGPath]);
-    CGContextSetFillColorWithColor(ctx, [[UIColor colorWithRed:95./255. green:165./255. blue:220./255. alpha:1.] CGColor]);
-    CGContextFillPath(ctx);
-    
-    CGContextAddPath(ctx, translatedPath);
-    CGContextSetBlendMode(ctx, kCGBlendModeClear);
-    CGContextFillPath(ctx);
-    
-    CGPathRelease(translatedPath);
-    CGContextEndTransparencyLayer(ctx);
-    CGContextRestoreGState(ctx);
-
-    
-    CGContextSaveGState(ctx);
-    CGContextBeginTransparencyLayer(ctx, NULL);
-
-    CGContextAddPath(ctx, [roundedPath CGPath]);
-    CGContextSetFillColorWithColor(ctx, [[[UIColor whiteColor] colorWithAlphaComponent:0.15] CGColor]);
-    CGContextFillPath(ctx);
-    
-    translation = CGAffineTransformMakeTranslation(0, 2);
-    translatedPath = CGPathCreateCopyByTransformingPath([roundedPath CGPath], &translation);
-    
-    CGContextAddPath(ctx, translatedPath);
-    CGContextSetBlendMode(ctx, kCGBlendModeClear);
-    CGContextFillPath(ctx);
-    
-    CGPathRelease(translatedPath);
-    CGContextEndTransparencyLayer(ctx);
-    CGContextRestoreGState(ctx);
-    
-    
-    CGContextSaveGState(ctx);
-    CGContextBeginTransparencyLayer(ctx, NULL);
-    
-    CGContextAddPath(ctx, [roundedPath CGPath]);
-    CGContextSetFillColorWithColor(ctx, [[UIColor colorWithRed:55./255. green:124./255. blue:191./255. alpha:1.] CGColor]);
-    CGContextFillPath(ctx);
-    
-    translation = CGAffineTransformMakeTranslation(0, -1);
-    translatedPath = CGPathCreateCopyByTransformingPath([roundedPath CGPath], &translation);
-    
-    CGContextAddPath(ctx, translatedPath);
-    CGContextSetBlendMode(ctx, kCGBlendModeClear);
-    CGContextFillPath(ctx);
-    
-    CGPathRelease(translatedPath);
-    CGContextEndTransparencyLayer(ctx);
-    CGContextRestoreGState(ctx);
-
-}
-
-@end
-
 @interface NRGridViewCell()
 - (void)__commonInit;
 
@@ -164,7 +61,6 @@
 {
     _contentView = [[UIView alloc] initWithFrame:CGRectZero];
     [_contentView setBackgroundColor:[UIColor clearColor]];
-    [self setSelectionBackgroundView:[[[NRGridViewCellSelectionBackgroundView alloc] initWithFrame:CGRectZero] autorelease]];
     [self addSubview:_contentView];
 }
 

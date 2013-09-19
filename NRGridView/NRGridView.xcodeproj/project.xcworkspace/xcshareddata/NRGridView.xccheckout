@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>60C8D057-11EF-4CBD-B7BA-2871D1B4CAEB</string>
+	<key>IDESourceControlProjectName</key>
+	<string>NRGridView</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>4A405649-A8E8-4A17-B388-E763C8C4DFE6</key>
+		<string>https://github.com/ldesroziers/NRGridView.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>NRGridView/NRGridView.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>4A405649-A8E8-4A17-B388-E763C8C4DFE6</key>
+		<string>../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/ldesroziers/NRGridView.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>4A405649-A8E8-4A17-B388-E763C8C4DFE6</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>4A405649-A8E8-4A17-B388-E763C8C4DFE6</string>
+			<key>IDESourceControlWCCName</key>
+			<string>NRGridView</string>
+		</dict>
+	</array>
+</dict>
+</plist>
