@@ -553,7 +553,7 @@ static CGFloat const _kNRGridViewDefaultHeaderWidth = 30.; // layout style = hor
 {
     BOOL needsRelayout = NO;
     
-    if(gridFooterView != _gridHeaderView)
+    if(gridFooterView != _gridFooterView)
     {
         [self willChangeValueForKey:@"gridFooterView"];
         
