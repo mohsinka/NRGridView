@@ -135,9 +135,9 @@
         [_textLabel setTextColor:[UIColor blackColor]];
         [_textLabel setHighlightedTextColor:[UIColor whiteColor]];
         [_textLabel setNumberOfLines:0];
-        [_textLabel setLineBreakMode:UILineBreakModeTailTruncation];
+        [_textLabel setLineBreakMode:NSLineBreakByTruncatingTail];
         [_textLabel setAdjustsFontSizeToFitWidth:YES];
-        [_textLabel setTextAlignment:UITextAlignmentLeft];
+        [_textLabel setTextAlignment:NSTextAlignmentLeft];
         
         [[self contentView] addSubview:_textLabel];
     }
@@ -153,9 +153,9 @@
         [_detailedTextLabel setTextColor:[UIColor blackColor]];
         [_detailedTextLabel setHighlightedTextColor:[UIColor whiteColor]];
         [_detailedTextLabel setNumberOfLines:0];
-        [_detailedTextLabel setLineBreakMode:UILineBreakModeTailTruncation];
+        [_detailedTextLabel setLineBreakMode:NSLineBreakByTruncatingTail];
         [_detailedTextLabel setAdjustsFontSizeToFitWidth:YES];
-        [_detailedTextLabel setTextAlignment:UITextAlignmentLeft];
+        [_detailedTextLabel setTextAlignment:NSTextAlignmentLeft];
         
         [[self contentView] addSubview:_detailedTextLabel];
     }

@@ -55,10 +55,10 @@
         _titleLabel = [[UILabel alloc] initWithFrame:CGRectZero];
         [_titleLabel setBackgroundColor:[UIColor clearColor]];
         [_titleLabel setTextColor:[UIColor blackColor]];
-        [_titleLabel setTextAlignment:UITextAlignmentLeft];
+        [_titleLabel setTextAlignment:NSTextAlignmentLeft];
         [_titleLabel setFont:[UIFont boldSystemFontOfSize:17.]];
         [_titleLabel setNumberOfLines:0];
-        [_titleLabel setLineBreakMode:UILineBreakModeTailTruncation];
+        [_titleLabel setLineBreakMode:NSLineBreakByTruncatingTail];
         [_titleLabel setShadowColor:[UIColor whiteColor]];
         [_titleLabel setShadowOffset:CGSizeMake(0, 1)];
         

@@ -130,13 +130,13 @@ static BOOL const _kNRGridViewSampleCrazyScrollEnabled = NO; // For the lulz.
 
 - (NSString*)gridView:(NRGridView *)gridView titleForHeaderInSection:(NSInteger)section
 {
-    return [NSString stringWithFormat:@"Section %i %@", section, (section == 0 && _firstSectionReloaded ? @"(Reloaded)" : @"")];
+    return [NSString stringWithFormat:@"Section %ld %@", section, (section == 0 && _firstSectionReloaded ? @"(Reloaded)" : @"")];
 }
 
 - (NSString*)gridView:(NRGridView *)gridView titleForFooterInSection:(NSInteger)section
 {
    if(section%2)
-       return [NSString stringWithFormat:@"Footer %i", section];
+       return [NSString stringWithFormat:@"Footer %ld", section];
     return nil;
 }  
 
@@ -155,8 +155,8 @@ static BOOL const _kNRGridViewSampleCrazyScrollEnabled = NO; // For the lulz.
 
     }
     
-    cell.imageView.image = (indexPath.section == 0 && _firstSectionReloaded ? nil : [UIImage imageNamed:[NSString stringWithFormat:@"%i.png", (indexPath.row%7)]]);
-    cell.textLabel.text = [NSString stringWithFormat:@"Item %i %@", indexPath.itemIndex, (indexPath.section == 0 && _firstSectionReloaded ? @"(Reloaded)" : @"")];
+    cell.imageView.image = (indexPath.section == 0 && _firstSectionReloaded ? nil : [UIImage imageNamed:[NSString stringWithFormat:@"%li.png", (indexPath.row%7)]]);
+    cell.textLabel.text = [NSString stringWithFormat:@"Item %li %@", (long)indexPath.itemIndex, (indexPath.section == 0 && _firstSectionReloaded ? @"(Reloaded)" : @"")];
     cell.detailedTextLabel.text = @"Some details";
 
     return cell;
