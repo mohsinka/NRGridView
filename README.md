@@ -1,6 +1,6 @@
 #NRGridView
 
-iOS 4.0 minimum.
+iOS 6.0 minimum. 32/64 bits compatible.
 
 ##License
 
